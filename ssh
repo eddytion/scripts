@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+HOST=$1
+PASS=`echo asd | base64 -d`
+
+if [[ $# -ne 1 ]]
+then
+  echo "Error: please specify hostname"
+else
+  sshpass -p ${PASS}  ssh -o ConnectTimeout=2 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -q -l unix ${HOST}
+fi

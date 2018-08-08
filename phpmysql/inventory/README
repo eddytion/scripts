@@ -1,0 +1,6 @@
+Create a new database named inventory
+Create structure using inventory.sql
+Place all the content except sql files in your apache directory
+Adjust cloud_update_db.sh script according to your needs
+Run cloud_update_db.sh <hmc1> <hmc2> <hmc3> etc and wait for the data to be inserted into mysql
+Access the index.php file and you should have a nice table with details about your IBM Power systems

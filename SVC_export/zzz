@@ -1,0 +1,16 @@
+my @a_lines = `cat luns.csv | grep as01`;
+chomp(@a_lines);
+
+foreach my $line (@a_lines)
+{
+  my @a_params = split(/\,/,$line);
+  my $orig_server = $a_params[1];
+  my $temp_disk = $a_params[2];
+  my @a_as400 = split(/_/,$temp_disk);
+  my $to_replace = $a_as400[0];
+  my $uid = $a_params[3];
+  my $io_grp = $a_params[4];
+  my $size = $a_params[5];
+  my $id = $a_params[6];
+  print "DEFAULT,$to_replace,$temp_disk,$uid,$io_grp,$size,$id\n";
+}

@@ -1,0 +1,122 @@
+#!/usr/bin/sh
+
+set -xv
+
+if [[ "$#" -ne 4 ]]
+then
+  echo "ERR: The script needs exactly 4 parameters, you have provided $#"
+  exit 1
+fi
+
+HMC=$1
+MS=$2
+LPAR=$3
+AIX=$4
+MAC=
+NIM="is0124"
+MKSYSB="mksysb_gi_${AIX}"
+SPOT="spot-${AIX}"
+LPP_SOURCE="lpp_source-${AIX}"
+BOSINST_DATA="aix_bosinst_base"
+SSH_NIM="ssh -T -l unix ${NIM}"
+SSH_HMC="ssh -T -l unix ${HMC}"
+NIM_IP=$(nslookup ${NIM} | grep Address | grep -v "#53" | awk {'print $2'})
+DATE=$(date +"%Y-%m-%d")
+
+LANG=C
+
+function getmac ()
+{
+  MAC=$(wget -e use_proxy=no "http://lsh35350rh/webaix/getmac.php?lpar=${LPAR}&mac=get" -O /tmp/${LPAR}.mac > /dev/null 2>&1; cat /tmp/${LPAR}.mac)
+  if [[ -z "${MAC}" || "${MAC}" == "NULL" ]]
+  then
+    echo "WARN: I was unable to get the MAC address for ${LPAR} from database... reading HMC profile"
+    MAC=$(${SSH_HMC} "lshwres -r virtualio -m ${MS} --rsubtype eth --level lpar -F lpar_name,is_trunk,port_vlan_id,vswitch,mac_addr | grep -w ${LPAR} | grep \"0,10\" | cut -f 5 -d ,")
+    if [[ -z "${MAC}" || "${MAC}" == "NULL" ]]
+    then
+      echo "ERR: I was unable to get the MAC address for ${LPAR} from HMC profile... exiting"
+      exit 1
+    else
+      echo "INFO: MAC Address is ${MAC}"
+    fi
+  else
+    echo "INFO: MAC Address is ${MAC}"
+  fi
+}
+
+function check_nim ()
+{
+  ${SSH_NIM} "lsnim -l ${LPAR} >/dev/null 2>&1"
+  if [[ $? == 0 ]]
+  then
+    echo "INFO: Host ${LPAR} is already defined on nim server ${NIM}, I will reset it ... "
+    ${SSH_NIM} "nim -Fo reset ${LPAR}; nim -Fo deallocate -a subclass=all ${LPAR}"
+    if [[ $? == 0 ]]
+    then
+      echo "INFO: Host ${LPAR} has been reset on nim server ${NIM} ... "
+      ${SSH_NIM} "nim -o bos_inst -a source=rte -a spot=${SPOT} -a lpp_source=${LPP_SOURCE} -a fb_script=aix_post_setup -a accept_licenses=yes -a force_push=no -a boot_client=no -a installp_flags='-agQXY' -a bosinst_data=${BOSINST_DATA} ${LPAR}"
+      if [[ $? == 0 ]]
+      then
+        echo "INFO: Host ${LPAR} has been setup for installation on nim server ${NIM} with the following resources:"
+        echo "SPOT: ${SPOT}"
+        echo "LPP_SOURCE: ${LPP_SOURCE}"
+        echo "BOSINST_DATA: ${BOSINST_DATA}"
+        echo "----------------------------------------------------------------------------------"
+        ${SSH_NIM} "lsnim -l ${LPAR}"
+      else
+        echo "ERR: Unable to setup ${LPAR} for installation, please check manually on ${NIM} ..."
+        exit 1
+      fi
+    else
+      echo "WARN: I was unable to reset host ${LPAR} on nim server ${NIM} ... "
+      exit 1
+    fi
+  else
+    ${SSH_NIM} "nim -o define -t standalone -a platform=chrp -a netboot_kernel=64 -a cable_type1=tp -a if1=\"find_net ${LPAR} 0\" ${LPAR}"
+    if [[ $? == 0 ]]
+    then
+      echo "INFO: Host ${LPAR} defined successfully on nim server ${NIM} ... "
+      ${SSH_NIM} "nim -o bos_inst -a source=rte -a spot=${SPOT} -a lpp_source=${LPP_SOURCE} -a fb_script=aix_post_setup -a accept_licenses=yes -a force_push=no -a boot_client=no -a installp_flags='-agQXY' -a bosinst_data=${BOSINST_DATA} ${LPAR}"
+      if [[ $? == 0 ]]
+      then
+        echo "INFO: Host ${LPAR} has been setup for installation with the following resources:"
+        echo "SPOT: ${SPOT}"
+        echo "LPP_SOURCE: ${LPP_SOURCE}"
+        echo "BOSINST_DATA: ${BOSINST_DATA}"
+        echo "----------------------------------------------------------------------------------"
+        ${SSH_NIM} "lsnim -l ${LPAR}"
+      else
+        echo "ERR: Unable to setup ${LPAR} for installation, please check manually on ${NIM} ... "
+        exit 1
+      fi
+    fi
+  fi
+}
+
+function lpar_netboot()
+{
+  echo "INFO: Getting network parameters for lpar_netboot command ... "
+  NET=$(${SSH_NIM} "lsnim -l ${LPAR} | grep -w if1 | awk {'print \$3'}")
+  GW=$(${SSH_NIM} "lsnim -l ${NET} | grep -w routing1 | awk {'print \$4'}")
+  MASK=$(${SSH_NIM} "lsnim -l ${NET} | grep -w snm | awk {'print \$3'}")
+  IPADDR=$(nslookup ${LPAR} | grep Address | grep -v "#53" | awk {'print $2'})
+
+  echo "INFO: Booting lpar ${LPAR} to start installation ..."
+  ${SSH_HMC} "lpar_netboot -m ${MAC} -f -i -t ent -T off -s auto -d auto -S ${NIM_IP} -G ${GW} -C ${IPADDR} -K ${MASK} ${LPAR} default ${MS}"
+  echo "lpar_netboot -m ${MAC} -f -i -t ent -T off -s auto -d auto -S ${NIM_IP} -G ${GW} -C ${IPADDR} -K ${MASK} ${LPAR} default ${MS}"
+}
+
+echo "CiAgICMgICAgICMjIyAgIyAgICAgIyAgICAgICAgICMjIyMjICAgIyMjIyMjIyAgIyMjIyMjIyAg
+IyAgICAgIyAgIyMjIyMjICAgCiAgIyAjICAgICAjICAgICMgICAjICAgICAgICAgIyAgICAgIyAg
+IyAgICAgICAgICAgIyAgICAgIyAgICAgIyAgIyAgICAgIyAgCiAjICAgIyAgICAjICAgICAjICMg
+ICAgICAgICAgIyAgICAgICAgIyAgICAgICAgICAgIyAgICAgIyAgICAgIyAgIyAgICAgIyAgCiMg
+ICAgICMgICAjICAgICAgIyAgICAgICAgICAgICMjIyMjICAgIyMjIyMgICAgICAgIyAgICAgIyAg
+ICAgIyAgIyMjIyMjICAgCiMjIyMjIyMgICAjICAgICAjICMgICAgICAgICAgICAgICAgIyAgIyAg
+ICAgICAgICAgIyAgICAgIyAgICAgIyAgIyAgICAgICAgCiMgICAgICMgICAjICAgICMgICAjICAg
+ICAgICAgIyAgICAgIyAgIyAgICAgICAgICAgIyAgICAgIyAgICAgIyAgIyAgICAgICAgCiMgICAg
+ICMgICMjIyAgIyAgICAgIyAgICAgICAgICMjIyMjICAgIyMjIyMjIyAgICAgIyAgICAgICMjIyMj
+ICAgIyAgICAgICAgCgo=" | base64 -d
+
+getmac
+check_nim
+lpar_netboot
