@@ -92,7 +92,7 @@ function get_mem_cpu_lpars_table()
 for HMC in `echo ${HMCLIST}`
 do
 sshpass -p ${PASSWD} ssh -q -T hscroot@${HMC} << '_ENDSSH_'
-  for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`
+  for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`
   do 
     lssyscfg -r prof -m $ms -F name,lpar_name,min_mem,desired_mem,max_mem,mem_mode,proc_mode,min_proc_units,desired_proc_units,max_proc_units,min_procs,desired_procs,max_procs,sharing_mode,uncap_weight
   done
