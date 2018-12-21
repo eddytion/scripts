@@ -1,4 +1,4 @@
-#!/bin/python3.4
+#!/bin/python3.6
 
 import paramiko
 import sys
@@ -6,7 +6,6 @@ import datetime
 import multiprocessing
 import logging
 import mysql.connector
-import os
 import time
 
 DBUSER = "root"
@@ -14,6 +13,8 @@ DBPASS = "mariadbpwd"
 DBHOST = "localhost"
 DBNAME = "sap"
 DBPORT = 3306
+HMCPASSWD = "abc1234"
+HMCUSER = "hscroot"
 
 current_date = datetime.date.today()
 ssh = paramiko.SSHClient()
@@ -30,7 +31,8 @@ mydb = mysql.connector.connect(
     host=DBHOST,
     user=DBUSER,
     passwd=DBPASS,
-    database=DBNAME
+    database=DBNAME,
+    port=DBPORT
 )
 
 mycursor = mydb.cursor()
@@ -45,11 +47,13 @@ class CloudUpdate(object):
         self.csvfile_ms_mem = "/tmp/ms_mem_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_ms_cpu = "/tmp/ms_cpu_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_ms_io = "/tmp/ms_io_" + str(hmc) + "_" + str(current_date) + ".csv"
+        self.csvfile_ms_io_subdev = "/tmp/ms_io_subdev" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_lpar_fc = "/tmp/ms_lpar_fc_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_lpar_scsi = "/tmp/ms_lpar_scsi_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_lpar_eth = "/tmp/ms_lpar_eth_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_phys_mac = "/tmp/ms_phys_mac_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_vios_wwpn = "/tmp/ms_vios_wwpn_" + str(hmc) + "_" + str(current_date) + ".csv"
+        self.csvfile_vios_disks = "/tmp/ms_vios_disks_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_hmc_details = "/tmp/hmc_details_" + str(hmc) + "_" + str(current_date) + ".sql"
         self.lpar_ms_results = []
         self.mem_cpu_lpars = []
@@ -57,12 +61,14 @@ class CloudUpdate(object):
         self.ms_mem = []
         self.ms_cpu = []
         self.ms_io = []
+        self.ms_io_subdev = []
         self.lpar_fc = []
         self.lpar_scsi = []
         self.lpar_eth = []
         self.phys_mac = []
         self.vios_wwpn = []
         self.hmc_queries = []
+        self.vios_disks = []
 
     def get_hmc_details(self, hmc):
         hmc_last_update = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -70,16 +76,16 @@ class CloudUpdate(object):
         hmc_servicepack = ""
         hmc_model = ""
         hmc_serial = ""
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('lshmc -V')
         output_1 = ssh_stdout.readlines()
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('lshmc -v')
         output_2 = ssh_stdout.readlines()
         for i in output_1:
             if i:
-                if "Release" in i:
+                if "Release:" in i:
                     hmc_release = (i.split(':')[-1].rstrip('\n'))
-                if "Service Pack" in i:
+                if "Service Pack:" in i:
                     hmc_servicepack = (i.split(':')[-1].rstrip('\n'))
 
         for i in output_2:
@@ -91,7 +97,7 @@ class CloudUpdate(object):
 
         query = "UPDATE hmc SET version='" + hmc_release + "', servicepack='" + hmc_servicepack + "', model='" + hmc_model + "', serialnr='" + hmc_serial + "', last_update='" + hmc_last_update + "' WHERE name='" + hmc + "';"
         self.hmc_queries.append(query)
-        with open(self.csvfile_hmc_details, 'a') as f:
+        with open(self.csvfile_hmc_details, 'w') as f:
             for line in self.hmc_queries:
                 f.write(line)
 
@@ -101,9 +107,8 @@ class CloudUpdate(object):
                 mycursor.execute(qr)
                 mydb.commit()
 
-
     def get_lpar_ms(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state,type_model,serial_num | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL"`;do MSNAME=`echo $ms | cut -f 1 -d ,`;MSMODEL=`echo $ms | cut -f 3 -d ,`;MSSERIAL=`echo $ms | cut -f 4 -d ,`; for lpar in `lssyscfg -r lpar -m $MSNAME -F name,lpar_env,os_version,state,rmc_ipaddr,rmc_state,curr_lpar_proc_compat_mode,lpar_id | sed \'s/ /-/g\'`;do HMCNAME=`uname -n | cut -f 1 -d .`;  LPARNAME=`echo $lpar | cut -f 1 -d ,`;  LPARENV=`echo $lpar | cut -f 2 -d ,`;  LPAROS=`echo $lpar | cut -f 3 -d ,`;  LPARSTATE=`echo $lpar | cut -f 4 -d ,`;  LPARIP=`echo $lpar | cut -f 5 -d ,`;  RMCSTATE=`echo $lpar | cut -f 6 -d ,`; PROC_COMPAT=`echo $lpar | cut -f 7 -d ,`; LPARID=`echo $lpar | cut -f 8 -d ,`; echo "DEFAULT,$HMCNAME,$MSNAME,$MSMODEL,$MSSERIAL,$LPARNAME,$LPARENV,$LPAROS,$LPARSTATE,$LPARIP,$RMCSTATE,$PROC_COMPAT,$LPARID";done;done')
         output = ssh_stdout.readlines()
@@ -120,7 +125,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_mem_cpu_lpars(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`;do lssyscfg -r prof -m $ms -F name,lpar_name,min_mem,desired_mem,max_mem,mem_mode,proc_mode,min_proc_units,desired_proc_units,max_proc_units,min_procs,desired_procs,max_procs,sharing_mode,uncap_weight;done | sed \'s/^/DEFAULT,/g\'')
         output = ssh_stdout.readlines()
@@ -137,7 +142,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_ms_fw(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`;do echo -n "$ms,";lslic -m $ms -t sys -Fcurr_ecnumber_primary:activated_level;done')
         output = ssh_stdout.readlines()
@@ -154,7 +159,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_ms_mem(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do for line in `lshwres -m $ms -r mem --level sys -F configurable_sys_mem,curr_avail_sys_mem,deconfig_sys_mem,sys_firmware_mem,mem_region_size`;do echo "$ms,"$line"";done;done')
         output = ssh_stdout.readlines()
@@ -171,7 +176,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_ms_cpu(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do for line in `lshwres -m $ms -r proc --level sys -F configurable_sys_proc_units,curr_avail_sys_proc_units,deconfig_sys_proc_units`;do echo "$ms,"$line"";done; done')
         output = ssh_stdout.readlines()
@@ -188,7 +193,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_ms_io(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do for line in `lshwres -r io --rsubtype slot -m $ms -F unit_phys_loc,phys_loc,description,lpar_name,drc_name | sed \'s/ /_/g\'`;do echo "$ms,"$line"";done;done')
         output = ssh_stdout.readlines()
@@ -204,8 +209,25 @@ class CloudUpdate(object):
         mycursor.execute(query)
         mydb.commit()
 
+    def get_ms_io_subdev(self, hmc):
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+            'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do for line in `lshwres -r io --rsubtype slotchildren -m $ms -F phys_loc,lpar_id,lpar_name,description,device_type,mac_address,parent,serial_num,fru_num,part_num,wwpn,wwnn | sed \'s/ /_/g\'`;do echo "$ms,"$line"";done;done')
+        output = ssh_stdout.readlines()
+        for i in output:
+            if len(i) > 0 and "No results were found." not in i:
+                self.ms_io_subdev.append([i])
+        with open(self.csvfile_ms_io_subdev, 'a') as f:
+            for line in self.ms_io_subdev:
+                f.write('DEFAULT,' + str(line[0]))
+
+    def update_database_ms_io_subdev(self):
+        query = "LOAD DATA LOCAL INFILE '" + self.csvfile_ms_io_subdev + "' IGNORE INTO TABLE sap.ms_io_subdev FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n'"
+        mycursor.execute(query)
+        mydb.commit()
+
     def get_lpar_fc(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`;do lshwres -r virtualio -m $ms --rsubtype fc --level lpar -F lpar_name,adapter_type,state,remote_lpar_name,remote_slot_num,wwpns | sort ; done')
         output = ssh_stdout.readlines()
@@ -222,7 +244,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_lpar_scsi(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do lshwres -r virtualio -m $ms --rsubtype scsi -F lpar_name,slot_num,state,is_required,adapter_type,remote_lpar_name,remote_slot_num | sort; done')
         output = ssh_stdout.readlines()
@@ -239,7 +261,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_lpar_eth(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do lshwres -r virtualio -m $ms --rsubtype eth --level lpar -F lpar_name,slot_num,is_trunk,port_vlan_id,vswitch,mac_addr | sort; done')
         output = ssh_stdout.readlines()
@@ -256,7 +278,7 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_vios_wwpn(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`;do for vios in `lssyscfg -r lpar -m $ms -F name,state,lpar_env | grep -w vioserver | cut -f 1 -d ,`;do for fcs in `viosvrcmd -p $vios -m $ms -c "lsdev -type adapter" | grep fcs | grep -v FCoE | cut -f 1 -d \' \'`;do wwpn=`viosvrcmd -p $vios -m $ms -c "lsdev -dev $fcs -vpd" | grep -w "Network Address" | sed \'s/\.//g;s/Network Address//g;s/ //g\'`; echo "$ms,$vios,$fcs,$wwpn";done;done;done')
         output = ssh_stdout.readlines()
@@ -272,8 +294,8 @@ class CloudUpdate(object):
         mycursor.execute(query)
         mydb.commit()
 
-    def get_phys_mac(self,hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='password', timeout=120)
+    def get_phys_mac(self, hmc):
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
             'for ms in `lssyscfg -r sys -F name,state | grep Operating | egrep -v "Authentication|No Connection|Mismatch|Power|HSCL" | cut -f 1 -d ,`; do for line in `lshwres -m $ms -r io --rsubtype slotchildren -F lpar_name,phys_loc,mac_address | grep -v null | grep -v "No results were"`; do echo "$ms,$line"; done; done')
         output = ssh_stdout.readlines()
@@ -298,6 +320,7 @@ class CloudUpdate(object):
         self.get_lpar_scsi(hmc)
         self.get_lpar_fc(hmc)
         self.get_ms_io(hmc)
+        self.get_ms_io_subdev(hmc)
         self.get_ms_cpu(hmc)
         self.get_ms_mem(hmc)
         self.get_ms_fw(hmc)
@@ -312,26 +335,16 @@ class CloudUpdate(object):
             self.update_database_ms_mem()
             self.update_database_ms_cpu()
             self.update_database_ms_io()
+            self.update_database_ms_io_subdev()
             self.update_database_lpar_fc()
             self.update_database_lpar_scsi()
             self.update_database_lpar_eth()
             self.update_database_vios_wwpn()
             self.update_database_phys_mac()
-        except:
+        except Exception as e:
+            print("Some error has occured while trying to update database for " + str(self.hmc))
+            print(str(e))
             pass
-
-    def cleanup(self):
-        os.remove(self.csvfile_ms_mem)
-        os.remove(self.csvfile_ms_fw)
-        os.remove(self.csvfile_mem_cpu_lpars)
-        os.remove(self.csvfile_lpar_ms)
-        os.remove(self.csvfile_lpar_eth)
-        os.remove(self.csvfile_lpar_fc)
-        os.remove(self.csvfile_lpar_scsi)
-        os.remove(self.csvfile_ms_io)
-        os.remove(self.csvfile_vios_wwpn)
-        os.remove(self.csvfile_ms_cpu)
-        os.remove(self.csvfile_phys_mac)
 
 
 pool = multiprocessing.Pool(processes=6)
