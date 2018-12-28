@@ -43,7 +43,7 @@ if(isset($_GET['q']) && is_string($_GET['q']))
                   $class="odd";
                 }
                         echo "<tr class=\"$class\" onmouseover=\"this.style.color='red'\" onmouseout=\"this.style.color='#566787'\">";
-                        echo "<td>{$row['name']}</td>";
+                        echo "<td><a href=\"hmc.php?hmc={$row['name']}\" onclick=\"return popitup('hmc.php?hmc={$row['name']}')\">{$row['name']}</td>";
                         echo "<td>{$row['version']}</td>";
                         echo "<td>{$row['servicepack']}</td>";
                         echo "<td>{$row['model']}</td>";
