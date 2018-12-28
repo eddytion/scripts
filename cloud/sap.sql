@@ -58,6 +58,17 @@ CREATE TABLE `hmc` (
   `model` varchar(20) NOT NULL,
   `serialnr` varchar(20) NOT NULL,
   `ipaddr` varchar(50) NOT NULL,
+  `admin_company_name` text NOT NULL,
+  `admin_name` text CHARACTER SET utf8 NOT NULL,
+  `admin_email` text NOT NULL,
+  `admin_phone` text NOT NULL,
+  `admin_addr` text CHARACTER SET utf8 NOT NULL,
+  `admin_addr2` text CHARACTER SET utf8 NOT NULL,
+  `admin_city` text CHARACTER SET utf8 NOT NULL,
+  `admin_country` text NOT NULL,
+  `admin_state` text NOT NULL,
+  `admin_postal_code` text NOT NULL,
+  `acct_customer_num` text NOT NULL,
   `last_update` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_2` (`id`),
@@ -82,7 +93,7 @@ CREATE TABLE `lpar_eth` (
   `mac_addr` varchar(12) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `macaddrindex` (`mac_addr`)
-) ENGINE=InnoDB AUTO_INCREMENT=41277 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=41231 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,7 +139,7 @@ CREATE TABLE `lpar_ms` (
   `lpar_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_lparname` (`lparname`)
-) ENGINE=InnoDB AUTO_INCREMENT=8068 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=7954 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -149,7 +160,7 @@ CREATE TABLE `lpar_scsi` (
   `remote_slot_num` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `myindex` (`lpar_name`,`slot_num`,`remote_lpar_name`,`remote_slot_num`)
-) ENGINE=InnoDB AUTO_INCREMENT=30295 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=29804 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -178,7 +189,7 @@ CREATE TABLE `mem_cpu_lpars` (
   `uncap_weight` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_lpar_name` (`lpar_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8068 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=7954 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,7 +207,7 @@ CREATE TABLE `ms_cpu` (
   `deconfig_sys_proc_units` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_msname` (`ms_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=524 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=523 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,7 +223,7 @@ CREATE TABLE `ms_fw` (
   `fw_level` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `msindex` (`ms_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=524 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=523 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -231,7 +242,7 @@ CREATE TABLE `ms_io` (
   `lpar_name` varchar(50) NOT NULL,
   `drc_name` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25742 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=25723 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -257,7 +268,7 @@ CREATE TABLE `ms_io_subdev` (
   `wwpn` varchar(50) NOT NULL,
   `wwnn` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=74224 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=74222 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,7 +288,7 @@ CREATE TABLE `ms_mem` (
   `mem_region_size` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_msname` (`ms_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=524 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=523 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -318,7 +329,7 @@ CREATE TABLE `phys_mac` (
   `phys_loc` varchar(200) NOT NULL,
   `mac_addr` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=92915 DEFAULT CHARSET=ascii;
+) ENGINE=InnoDB AUTO_INCREMENT=92908 DEFAULT CHARSET=ascii;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -336,7 +347,7 @@ CREATE TABLE `vios_fc_wwpn` (
   `wwpn` varchar(50) CHARACTER SET ascii NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `wwpn` (`wwpn`)
-) ENGINE=InnoDB AUTO_INCREMENT=4108 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4101 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -372,4 +383,4 @@ CREATE TABLE `vmware` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-12-21 15:47:09
+-- Dump completed on 2018-12-28 16:41:44
