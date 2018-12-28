@@ -13,7 +13,7 @@ DBPASS = "mariadbpwd"
 DBHOST = "localhost"
 DBNAME = "sap"
 DBPORT = 3306
-HMCPASSWD = "abc1234"
+HMCPASSWD = "password"
 HMCUSER = "hscroot"
 
 current_date = datetime.date.today()
@@ -55,6 +55,7 @@ class CloudUpdate(object):
         self.csvfile_vios_wwpn = "/tmp/ms_vios_wwpn_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_vios_disks = "/tmp/ms_vios_disks_" + str(hmc) + "_" + str(current_date) + ".csv"
         self.csvfile_hmc_details = "/tmp/hmc_details_" + str(hmc) + "_" + str(current_date) + ".sql"
+        self.csvfile_hmc_custinfo = "/tmp/hmc_custinfo_" + str(hmc) + "_" + str(current_date) + ".sql"
         self.lpar_ms_results = []
         self.mem_cpu_lpars = []
         self.ms_fw = []
@@ -68,6 +69,7 @@ class CloudUpdate(object):
         self.phys_mac = []
         self.vios_wwpn = []
         self.hmc_queries = []
+        self.hmc_custinfo = []
         self.vios_disks = []
 
     def get_hmc_details(self, hmc):
@@ -103,6 +105,39 @@ class CloudUpdate(object):
 
     def update_database_hmc_details(self):
         with open(self.csvfile_hmc_details, 'r') as f:
+            for qr in f.readlines():
+                mycursor.execute(qr)
+                mydb.commit()
+
+    def get_hmc_custinfo(self, hmc):
+
+        ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+            'lssacfg -t custinfo -F admin_company_name,admin_name,admin_email,admin_phone,admin_addr,admin_addr2,admin_city,admin_country,admin_state,admin_postal_code,acct_customer_num')
+        output = ssh_stdout.readlines()
+
+        for i in output:
+            admin_company_name = i.split(',')[0].rstrip('\n')
+            admin_name = i.split(',')[1].rstrip('\n')
+            admin_email = i.split(',')[2].rstrip('\n')
+            admin_phone = i.split(',')[3].rstrip('\n')
+            admin_addr = i.split(',')[4].rstrip('\n')
+            admin_addr2 = i.split(',')[5].rstrip('\n')
+            admin_city = i.split(',')[6].rstrip('\n')
+            admin_country = i.split(',')[7].rstrip('\n')
+            admin_state = i.split(',')[8].rstrip('\n')
+            admin_postal_code = i.split(',')[9].rstrip('\n')
+            acct_customer_num = i.split(',')[10].rstrip('\n')
+
+            query_accinfo = "UPDATE hmc SET admin_company_name='" + admin_company_name + "', admin_name='" + str(
+                admin_name).replace("'", "") + "', admin_email='" + admin_email + "',admin_phone='" + admin_phone + "', admin_addr='" + str(admin_addr).replace("'", "\\'") + "', admin_addr2='" + str(admin_addr2).replace("'", "\\'") + "', admin_city='" + str(admin_city).replace("'", "\\'") + "', admin_country='" + admin_country + "', admin_state='" + admin_state + "', admin_postal_code='" + admin_postal_code + "', acct_customer_num='" + acct_customer_num + "' WHERE name='" + hmc + "';"
+            self.hmc_custinfo.append(query_accinfo)
+            with open(self.csvfile_hmc_custinfo, 'w') as f:
+                for line in self.hmc_custinfo:
+                    f.write(line)
+
+    def update_database_hmc_custinfo(self):
+        with open(self.csvfile_hmc_custinfo, 'r') as f:
             for qr in f.readlines():
                 mycursor.execute(qr)
                 mydb.commit()
@@ -312,35 +347,37 @@ class CloudUpdate(object):
         mydb.commit()
 
     def get_hmc_data(self, hmc):
-        self.get_hmc_details(hmc)
-        self.get_lpar_ms(hmc)
-        self.get_lpar_eth(hmc)
-        self.get_phys_mac(hmc)
-        self.get_mem_cpu_lpars(hmc)
-        self.get_lpar_scsi(hmc)
-        self.get_lpar_fc(hmc)
-        self.get_ms_io(hmc)
-        self.get_ms_io_subdev(hmc)
-        self.get_ms_cpu(hmc)
-        self.get_ms_mem(hmc)
-        self.get_ms_fw(hmc)
-        self.get_vios_wwpn(hmc)
+        # self.get_hmc_details(hmc)
+        self.get_hmc_custinfo(hmc)
+        # self.get_lpar_ms(hmc)
+        # self.get_lpar_eth(hmc)
+        # self.get_phys_mac(hmc)
+        # self.get_mem_cpu_lpars(hmc)
+        # self.get_lpar_scsi(hmc)
+        # self.get_lpar_fc(hmc)
+        # self.get_ms_io(hmc)
+        # self.get_ms_io_subdev(hmc)
+        # self.get_ms_cpu(hmc)
+        # self.get_ms_mem(hmc)
+        # self.get_ms_fw(hmc)
+        # self.get_vios_wwpn(hmc)
 
     def mysql_update(self):
         try:
-            self.update_database_hmc_details()
-            self.update_database_lpar_ms()
-            self.update_database_mem_cpu_lpars()
-            self.update_database_ms_fw()
-            self.update_database_ms_mem()
-            self.update_database_ms_cpu()
-            self.update_database_ms_io()
-            self.update_database_ms_io_subdev()
-            self.update_database_lpar_fc()
-            self.update_database_lpar_scsi()
-            self.update_database_lpar_eth()
-            self.update_database_vios_wwpn()
-            self.update_database_phys_mac()
+            # self.update_database_hmc_details()
+            self.update_database_hmc_custinfo()
+            # self.update_database_lpar_ms()
+            # self.update_database_mem_cpu_lpars()
+            # self.update_database_ms_fw()
+            # self.update_database_ms_mem()
+            # self.update_database_ms_cpu()
+            # self.update_database_ms_io()
+            # self.update_database_ms_io_subdev()
+            # self.update_database_lpar_fc()
+            # self.update_database_lpar_scsi()
+            # self.update_database_lpar_eth()
+            # self.update_database_vios_wwpn()
+            # self.update_database_phys_mac()
         except Exception as e:
             print("Some error has occured while trying to update database for " + str(self.hmc))
             print(str(e))
