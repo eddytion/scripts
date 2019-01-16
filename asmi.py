@@ -28,11 +28,11 @@ def get_asmip(hmc):
             asmips.append(str(i).split(',')[1])
 
 
-def get_events(hmc, asmip, formid):
+def get_events(hmc, asmip, formid, msname):
     events = []
     login_values = {
         'user': 'admin',
-        'password': 'admin1234',
+        'password': 'abcd',
         'CSRF_TOKEN': '0',
         'asmip': asmip,
         'login': 'Log in'
@@ -88,8 +88,8 @@ def get_events(hmc, asmip, formid):
         result = range(1, len(events), 6)
         for num, lines in enumerate(events):
             if num in result:
-                print(','.join(events[num:num + 6]).rstrip(','))
-                csv.append(','.join(events[num:num + 6]))
+                print(hmc + ';' + msname + ';' + ';'.join(events[num:num + 6]).rstrip(';'))
+                csv.append('DEFAULT;' + hmc + ';' + msname + ';' + ';'.join(events[num:num + 6]).rstrip(';'))
         print(
             "#####################################################################################################")
         logout_headers = {
@@ -112,16 +112,21 @@ def get_events(hmc, asmip, formid):
         session.post(logout_url, data=logout_values, verify=False, headers=logout_headers)
         r.cookies.clear_session_cookies()
         session.close()
+        with open("/tmp/asmi_events_" + str(msname) + ".csv", mode='wt', encoding='latin-1') as f:
+            for i in csv:
+                f.writelines(str(i) + "\n")
     except:
         pass
 
 
-# get_asmip(HMC)
-# for x in mslist:
-#     if "9117" in x:
-#         asm = str(x).split(',')[1].rstrip('\n')
-#         get_events(HMC, asm, 30)
-#     elif "8284" in x:
-#         asm = str(x).split(',')[1].rstrip('\n')
-#         get_events(HMC, asm, 31)
-get_events(HMC, '192.168.240.18', 31)
+get_asmip(HMC)
+for x in mslist:
+    if "9117" in x:
+        asm = str(x).split(',')[1].rstrip('\n')
+        ms = str(x).split(',')[0].rstrip('\n')
+        get_events(HMC, asm, 30, ms)
+    elif "8284" in x:
+        asm = str(x).split(',')[1].rstrip('\n')
+        ms = str(x).split(',')[0].rstrip('\n')
+        get_events(HMC, asm, 31, ms)
+# get_events(HMC, '172.16.255.254', 30)
