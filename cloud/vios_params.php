@@ -26,7 +26,7 @@ require("config_dashboard.php");
 $sql = "SELECT count(*) as counter, status FROM lpm GROUP by status";
 $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_array($result)) {
-    print "['{$row['status']}', {$row['counter']}], \n";
+    echo "['{$row['status']}', {$row['counter']}], \n";
 }
 ?>
         ]);
@@ -58,7 +58,7 @@ while ($row = mysqli_fetch_array($result)) {
 $sql = "SELECT count(*) as counter, max_xfer_size FROM `fcs` GROUP BY max_xfer_size ";
 $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_array($result)) {
-    print "['{$row['max_xfer_size']}', {$row['counter']}], \n";
+    echo "['{$row['max_xfer_size']}', {$row['counter']}], \n";
 }
 ?>
         ]);
@@ -90,7 +90,7 @@ while ($row = mysqli_fetch_array($result)) {
 $sql = "SELECT count(*) as counter, num_cmd_elems FROM `fcs` GROUP BY num_cmd_elems ";
 $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_array($result)) {
-    print "['{$row['num_cmd_elems']}', {$row['counter']}], \n";
+    echo "['{$row['num_cmd_elems']}', {$row['counter']}], \n";
 }
 ?>
         ]);
@@ -122,7 +122,7 @@ while ($row = mysqli_fetch_array($result)) {
 $sql = "SELECT count(*) as counter, fc_err_recov FROM `fscsi` GROUP BY fc_err_recov";
 $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_array($result)) {
-    print "['{$row['fc_err_recov']}', {$row['counter']}], \n";
+    echo "['{$row['fc_err_recov']}', {$row['counter']}], \n";
 }
 ?>
         ]);
@@ -154,7 +154,7 @@ while ($row = mysqli_fetch_array($result)) {
 $sql = "SELECT count(*) as counter, dyntrk FROM `fscsi` GROUP BY dyntrk";
 $result = mysqli_query($db, $sql);
 while ($row = mysqli_fetch_array($result)) {
-    print "['{$row['dyntrk']}', {$row['counter']}], \n";
+    echo "['{$row['dyntrk']}', {$row['counter']}], \n";
 }
 ?>
         ]);

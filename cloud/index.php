@@ -50,7 +50,7 @@ else
                              $row["msmodel"] . "<br><a href=\"https://www.google.co.uk/#q=IBM+{$row['msmodel']}+redbook+filetype:pdf+site:redbooks.ibm.com\" onclick=\"return popitup('https://www.google.co.uk/#q=IBM+{$row['msmodel']}+redbook+filetype:pdf+site:redbooks.ibm.com')\">Search online</a>" ."</td><td>" . 
                              $row["msserial"] . "</td><td>" . 
                              "<i class=\"fas fa-desktop\"></i>&nbsp;" .$row["lparname"] . " <i class=\"fas fa-terminal\" title=\"Click to copy mkvterm command to clipboard\" id=\"copy-button\" data-clipboard-text=\"mkvterm -m {$row['msname']} -p {$row['lparname']}\"></i>"
-                             . "<br /><a href=\"lpar.php?lpar={$row['lparname']}&env={$row['lparenv']}\" onclick=\"return popitup('lpar.php?lpar={$row['lparname']}&env={$row['lparenv']}')\">Details</a></td><td>" . 
+                             . "<br /><a href=\"lpar.php?lpar={$row['lparname']}&env={$row['lparenv']}\" onclick=\"return popitup('lpar.php?lpar={$row['lparname']}&env={$row['lparenv']}')\">Details</a> | <a href=\"storage.php?lpar={$row['lparname']}\" onclick=\"return popitup('storage.php?lpar={$row['lparname']}')\">Storage</a></td><td>" . 
                              $row["lparenv"] . "</td><td>";
                              echo "{$row["lparos"]}";
                              echo "</td><td>" . 

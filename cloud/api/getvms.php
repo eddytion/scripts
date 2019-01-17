@@ -8,4 +8,4 @@ while($r = mysqli_fetch_assoc($result))
 {
     $rows[] = $r;
 }
-print(json_encode($rows, JSON_PRETTY_PRINT));
+echo(json_encode($rows, JSON_PRETTY_PRINT));

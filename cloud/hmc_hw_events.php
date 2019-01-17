@@ -16,7 +16,7 @@ ini_set('display_errors', 1);
             $result_EventsByType = mysqli_query($db, $query_EventsByType);
             while($row_EventsByType = mysqli_fetch_assoc($result_EventsByType))
             {
-                print("['" . str_replace("'","",$row_EventsByType['text']) . "', " . $row_EventsByType['counter'] . "],");
+                echo("['" . str_replace("'","",$row_EventsByType['text']) . "', " . $row_EventsByType['counter'] . "],");
             }
             ?>
         ]);
@@ -44,7 +44,7 @@ ini_set('display_errors', 1);
             $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
             while($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC))
             {
-                print("['" . $row_EventsByHMC['hmc'] . "', " . $row_EventsByHMC['counter'] . "],");
+                echo("['" . $row_EventsByHMC['hmc'] . "', " . $row_EventsByHMC['counter'] . "],");
             }
             ?>
         ]);
@@ -83,7 +83,7 @@ ini_set('display_errors', 1);
             $result_EventsBySite = mysqli_query($db, $query_EventsBySite);
             while($row_EventsBySite = mysqli_fetch_assoc($result_EventsBySite))
             {
-                print("['" . $row_EventsBySite['site'] . "', " . $row_EventsBySite['counter'] . "],");
+                echo("['" . $row_EventsBySite['site'] . "', " . $row_EventsBySite['counter'] . "],");
             }
             ?>
         ]);
@@ -127,47 +127,47 @@ ini_set('display_errors', 1);
           $result_map = mysqli_query($db, $query_map);
           while($row_map = mysqli_fetch_assoc($result_map))
           {
-              print("['" . strtoupper($row_map['site']) . "', " . $row_map['counter'] . "],");
+              echo("['" . strtoupper($row_map['site']) . "', " . $row_map['counter'] . "],");
               /*
               if($row_map['site'] == "au")
               {
-                  print("['AU', " . $row_map['counter'] . "],");
+                  echo("['AU', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "br")
               {
-                  print("['Brazil', " . $row_map['counter'] . "],");
+                  echo("['Brazil', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "ca")
               {
-                  print("['Canada', " . $row_map['counter'] . "],");
+                  echo("['Canada', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "ch")
               {
-                  print("['Switzerland', " . $row_map['counter'] . "],");
+                  echo("['Switzerland', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "de")
               {
-                  print("['Germany', " . $row_map['counter'] . "],");
+                  echo("['Germany', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "es")
               {
-                  print("['Spain', " . $row_map['counter'] . "],");
+                  echo("['Spain', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "fr")
               {
-                  print("['France', " . $row_map['counter'] . "],");
+                  echo("['France', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "gb")
               {
-                  print("['UK', " . $row_map['counter'] . "],");
+                  echo("['UK', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "jp")
               {
-                  print("['Japan', " . $row_map['counter'] . "],");
+                  echo("['Japan', " . $row_map['counter'] . "],");
               }
               elseif($row_map['site'] == "us")
               {
-                  print("['US', " . $row_map['counter'] . "],");
+                  echo("['US', " . $row_map['counter'] . "],");
               }
                * 
                */
@@ -243,7 +243,7 @@ ini_set('display_errors', 1);
     $sorted_ok = array_diff($hmc_list, $sorted_errors);
     foreach ($sorted_errors as $value)
     {
-        print "
+        echo "
             <div class=\"col-sm-2\">
                 <div class=\"card border-danger mb-3\">
                   <div class=\"card-body text-danger\">
@@ -252,6 +252,8 @@ ini_set('display_errors', 1);
                     <a href=\"#hmcDetails\" data-toggle=\"modal\" data-hmcname=\"{$value}\" class=\"btn-link\">Details</a>
                         |
                     <a href=\"hmc_report.php?name={$value}\" target=\"_blank\" class=\"btn-link\">Report</a>
+                        |
+                    <a href=\"#asmiDetails\" data-toggle=\"modal\" data-hmcname=\"{$value}\" class=\"btn-link\">ASMI</a>
                   </div>
                 </div>
             </div>
@@ -260,7 +262,7 @@ ini_set('display_errors', 1);
     
     foreach ($sorted_ok as $value)
     {
-        print "
+        echo "
             <div class=\"col-sm-2\">
                 <div class=\"card border-success mb-3\">
                   <div class=\"card-body text-success\">
@@ -298,6 +300,26 @@ ini_set('display_errors', 1);
   </div>
 </div>
 
+<!-- Modal asmi -->
+<div class="modal fade" id="asmiDetails" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">ASMI Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="asmi_details">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 $(document).ready(function(){ 
  $(".btn-link").on('click',function(){
@@ -312,6 +334,29 @@ $(document).ready(function(){
         success: function(data) {
           $('#hmc_details').html(data);
           $('#hmcDetails').modal("show");
+        },
+        error:function(err){
+          alert("error"+JSON.stringify(err));
+          console.log(err.message);
+        }
+    });
+ });
+});
+</script>
+<script>
+$(document).ready(function(){ 
+ $(".btn-link").on('click',function(){
+    var hmc = $(this).attr('data-hmcname');
+
+    $('.modal-body').html('loading data for ' + hmc);
+
+       $.ajax({
+        method: 'GET',
+        url: 'asmi_data.php',
+        data: {hmc: hmc},
+        success: function(data) {
+          $('#asmi_details').html(data);
+          $('#asmiDetails').modal("show");
         },
         error:function(err){
           alert("error"+JSON.stringify(err));

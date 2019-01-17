@@ -2,6 +2,7 @@
 require("header2.php");
 if(isset($_GET['lpar']) && is_string($_GET['lpar']))
 {
+    $lpar = filter_var($_GET['lpar'], FILTER_SANITIZE_STRING);
     require("config.php");
     if(!$db)
     {
@@ -12,29 +13,20 @@ if(isset($_GET['lpar']) && is_string($_GET['lpar']))
         $sql="
         SELECT *
         FROM   storage
-        WHERE  lpar_name=\"{$_GET['lpar']}\" ORDER BY lun_serial ASC";
+        WHERE  lpar_name LIKE '%{$lpar}%' ORDER BY lun_serial ASC";
         $result = mysqli_query($db,$sql);
         if (mysqli_num_rows($result) > 0) 
 	{
-		echo "<table class=\"table\">";
-		echo "<tr>";
-		echo "<th>LPAR Name</th>
+		echo "<table class=\"table table-hover\">";
+		echo "<tr><thead>";
+		echo "<th>Name</th>
 		      <th>Disk Size</th>
 		      <th>Lun Name</th>
                       <th>Disk UID</th>
-                      <th>I/O Group</th>";
-		$counter=0;
+                      <th>I/O Group</th></thead></tr>";
 		while($row = mysqli_fetch_assoc($result)) 
 		{
-		if($counter%2==0)
-		{
-		  $color="#CADEFA";
-		}
-		else
-		{
-		  $color="#FFFFFF";
-		}
-			echo "<tr style=\"background-color:$color\">";
+			echo "<tr>";
 			echo "<td>" . $row["lpar_name"] . "</td><td>" . 
                              ($row["disk_size"]/1024/1024/1024) . " GB</td><td>" . 
                              $row["lun_name"] . "</td><td>" . 
@@ -47,7 +39,7 @@ if(isset($_GET['lpar']) && is_string($_GET['lpar']))
 	}
 	else
 	{
-	    echo "0 results";
+	    echo "0 results or not implemented yet";
 	}
 	mysqli_close($db);
     }

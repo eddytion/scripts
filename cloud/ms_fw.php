@@ -43,9 +43,18 @@ if(isset($_GET['msname']) && is_string($_GET['msname']))
                         }
 		}
 		echo "</tbody></table>";
+//                $aContext = array(
+//                'http' => array(
+//                    'proxy' => 'tcp://129.35.62.20:8080',
+//                    'request_fulluri' => true,
+//                    ),
+//                );
+//                $cxContext = stream_context_create($aContext);
+
                 function isJSON($string){
                     return is_string($string) && is_array(json_decode($string, true)) && (json_last_error() == JSON_ERROR_NONE) ? true : false;
                 }
+                //$content = file_get_contents("https://www14.software.ibm.com/webapp/set2/flrt/report?pageNm=home&reportType=power&plat=power&p0.mtm={$mtm}&p0.fw={$fw}&btnGo=SUBMIT&format=json", False, $cxContext);
                 $content = file_get_contents("https://www14.software.ibm.com/webapp/set2/flrt/report?pageNm=home&reportType=power&plat=power&p0.mtm={$mtm}&p0.fw={$fw}&btnGo=SUBMIT&format=json");
                 if(!empty($content) && isJSON($content))
                 {

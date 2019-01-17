@@ -19,7 +19,7 @@ if(isset($_GET['q']) && is_string($_GET['q']))
     $result = mysqli_query($db, $query);
     if(mysqli_num_rows($result) > 0)
     {
-        print "<table class=\"table\" width=\"100%\">";
+        echo "<table class=\"table\" width=\"100%\">";
                 echo "<thead>";
                 echo "<tr>";
                 echo "<th>HMC</th>

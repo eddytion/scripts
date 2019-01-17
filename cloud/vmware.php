@@ -12,7 +12,7 @@
             $result_EventsByType = mysqli_query($db, $query_EventsByType);
             while($row_EventsByType = mysqli_fetch_assoc($result_EventsByType))
             {
-                print("['" . str_replace("'","",$row_EventsByType['guestfullname']) . "', " . $row_EventsByType['counter'] . "],");
+                echo("['" . str_replace("'","",$row_EventsByType['guestfullname']) . "', " . $row_EventsByType['counter'] . "],");
             }
             ?>
         ]);
@@ -64,18 +64,18 @@ else
                       <tbody>";
                 while($row = mysqli_fetch_assoc($result))
                 {
-                    print "<tr>";
-                    print "<td>{$row['vmname']}</td>";
-                    print "<td>{$row['uuid']}</td>";
-                    print "<td>{$row['numcpu']}</td>";
-                    print "<td>{$row['memory']}</td>";
-                    print "<td>{$row['gueststate']}</td>";
-                    print "<td>{$row['guestfullname']}</td>";
-                    print "<td>{$row['configversion']}</td>";
-                    print "<td>{$row['ipaddress']}</td>";
-                    print "</tr>";
+                    echo "<tr>";
+                    echo "<td>{$row['vmname']}</td>";
+                    echo "<td>{$row['uuid']}</td>";
+                    echo "<td>{$row['numcpu']}</td>";
+                    echo "<td>{$row['memory']}</td>";
+                    echo "<td>{$row['gueststate']}</td>";
+                    echo "<td>{$row['guestfullname']}</td>";
+                    echo "<td>{$row['configversion']}</td>";
+                    echo "<td>{$row['ipaddress']}</td>";
+                    echo "</tr>";
                 }
-                print "</tbody></table></div>";
+                echo "</tbody></table></div>";
         }
 }
 ?>

@@ -18,14 +18,14 @@ if (mysqli_num_rows($result_fcs) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_fcs = mysqli_fetch_assoc($result_fcs)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_fcs['lparname']}</td>";
-        print "<td>{$row_fcs['adapter']}</td>";
-        print "<td>{$row_fcs['max_xfer_size']}</td>";
-        print "<td>{$row_fcs['num_cmd_elems']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_fcs['lparname']}</td>";
+        echo "<td>{$row_fcs['adapter']}</td>";
+        echo "<td>{$row_fcs['max_xfer_size']}</td>";
+        echo "<td>{$row_fcs['num_cmd_elems']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 //FSCSI Table
@@ -43,14 +43,14 @@ if (mysqli_num_rows($result_fscsi) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_fscsi = mysqli_fetch_assoc($result_fscsi)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_fscsi['lparname']}</td>";
-        print "<td>{$row_fscsi['adapter']}</td>";
-        print "<td>{$row_fscsi['fc_err_recov']}</td>";
-        print "<td>{$row_fscsi['dyntrk']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_fscsi['lparname']}</td>";
+        echo "<td>{$row_fscsi['adapter']}</td>";
+        echo "<td>{$row_fscsi['fc_err_recov']}</td>";
+        echo "<td>{$row_fscsi['dyntrk']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 //IEEE Table
@@ -70,16 +70,16 @@ if (mysqli_num_rows($result_ieee) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_ieee = mysqli_fetch_assoc($result_ieee)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_ieee['lparname']}</td>";
-        print "<td>{$row_ieee['adapter']}</td>";
-        print "<td>{$row_ieee['hash_mode']}</td>";
-        print "<td>{$row_ieee['s_interval']}</td>";
-        print "<td>{$row_ieee['mode']}</td>";
-        print "<td>{$row_ieee['jumbo_frames']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_ieee['lparname']}</td>";
+        echo "<td>{$row_ieee['adapter']}</td>";
+        echo "<td>{$row_ieee['hash_mode']}</td>";
+        echo "<td>{$row_ieee['s_interval']}</td>";
+        echo "<td>{$row_ieee['mode']}</td>";
+        echo "<td>{$row_ieee['jumbo_frames']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 // SWAP Table
@@ -96,13 +96,13 @@ if (mysqli_num_rows($result_swap) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_swap = mysqli_fetch_assoc($result_swap)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_swap['lparname']}</td>";
-        print "<td>{$row_swap['memorysize']}</td>";
-        print "<td>{$row_swap['swapsize']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_swap['lparname']}</td>";
+        echo "<td>{$row_swap['memorysize']}</td>";
+        echo "<td>{$row_swap['swapsize']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 // Phys Ethernet Table
@@ -123,17 +123,17 @@ if (mysqli_num_rows($result_phys_ent) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_phys_ent = mysqli_fetch_assoc($result_phys_ent)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_phys_ent['lparname']}</td>";
-        print "<td>{$row_phys_ent['ent']}</td>";
-        print "<td>{$row_phys_ent['checksum_offload']}</td>";
-        print "<td>{$row_phys_ent['jumbo_frames']}</td>";
-        print "<td>{$row_phys_ent['flow_ctrl']}</td>";
-        print "<td>{$row_phys_ent['large_receive']}</td>";
-        print "<td>{$row_phys_ent['largesend']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_phys_ent['lparname']}</td>";
+        echo "<td>{$row_phys_ent['ent']}</td>";
+        echo "<td>{$row_phys_ent['checksum_offload']}</td>";
+        echo "<td>{$row_phys_ent['jumbo_frames']}</td>";
+        echo "<td>{$row_phys_ent['flow_ctrl']}</td>";
+        echo "<td>{$row_phys_ent['large_receive']}</td>";
+        echo "<td>{$row_phys_ent['largesend']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 // SEA Table
@@ -155,18 +155,18 @@ if (mysqli_num_rows($result_sea) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_sea = mysqli_fetch_assoc($result_sea)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_sea['lparname']}</td>";
-        print "<td>{$row_sea['ent']}</td>";
-        print "<td>{$row_sea['largesend']}</td>";
-        print "<td>{$row_sea['large_receive']}</td>";
-        print "<td>{$row_sea['jumbo_frames']}</td>";
-        print "<td>{$row_sea['adapter_reset']}</td>";
-        print "<td>{$row_sea['accounting']}</td>";
-        print "<td>{$row_sea['ha_mode']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_sea['lparname']}</td>";
+        echo "<td>{$row_sea['ent']}</td>";
+        echo "<td>{$row_sea['largesend']}</td>";
+        echo "<td>{$row_sea['large_receive']}</td>";
+        echo "<td>{$row_sea['jumbo_frames']}</td>";
+        echo "<td>{$row_sea['adapter_reset']}</td>";
+        echo "<td>{$row_sea['accounting']}</td>";
+        echo "<td>{$row_sea['ha_mode']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 // VETH Table
@@ -188,18 +188,18 @@ if (mysqli_num_rows($result_veth) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_veth = mysqli_fetch_assoc($result_veth)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_veth['lparname']}</td>";
-        print "<td>{$row_veth['adapter']}</td>";
-        print "<td>{$row_veth['mtu_bypass']}</td>";
-        print "<td>{$row_veth['rfc1323']}</td>";
-        print "<td>{$row_veth['tcp_sendspace']}</td>";
-        print "<td>{$row_veth['tcp_recvspace']}</td>";
-        print "<td>{$row_veth['udp_sendspace']}</td>";
-        print "<td>{$row_veth['udp_recvspace']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_veth['lparname']}</td>";
+        echo "<td>{$row_veth['adapter']}</td>";
+        echo "<td>{$row_veth['mtu_bypass']}</td>";
+        echo "<td>{$row_veth['rfc1323']}</td>";
+        echo "<td>{$row_veth['tcp_sendspace']}</td>";
+        echo "<td>{$row_veth['tcp_recvspace']}</td>";
+        echo "<td>{$row_veth['udp_sendspace']}</td>";
+        echo "<td>{$row_veth['udp_recvspace']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }
 
 // VETH Buffers
@@ -225,20 +225,20 @@ if (mysqli_num_rows($result_veth_buf) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_veth_buf = mysqli_fetch_assoc($result_veth_buf)) {
-        print "<tr class=\"table-warning\">";
-        print "<td>{$row_veth_buf['lparname']}</td>";
-        print "<td>{$row_veth_buf['adapter']}</td>";
-        print "<td>{$row_veth_buf['min_buf_tiny']}</td>";
-        print "<td>{$row_veth_buf['max_buf_tiny']}</td>";
-        print "<td>{$row_veth_buf['min_buf_small']}</td>";
-        print "<td>{$row_veth_buf['max_buf_small']}</td>";
-        print "<td>{$row_veth_buf['min_buf_medium']}</td>";
-        print "<td>{$row_veth_buf['max_buf_medium']}</td>";
-        print "<td>{$row_veth_buf['min_buf_large']}</td>";
-        print "<td>{$row_veth_buf['max_buf_large']}</td>";
-        print "<td>{$row_veth_buf['min_buf_huge']}</td>";
-        print "<td>{$row_veth_buf['max_buf_huge']}</td>";
-        print "</tr>";
+        echo "<tr class=\"table-warning\">";
+        echo "<td>{$row_veth_buf['lparname']}</td>";
+        echo "<td>{$row_veth_buf['adapter']}</td>";
+        echo "<td>{$row_veth_buf['min_buf_tiny']}</td>";
+        echo "<td>{$row_veth_buf['max_buf_tiny']}</td>";
+        echo "<td>{$row_veth_buf['min_buf_small']}</td>";
+        echo "<td>{$row_veth_buf['max_buf_small']}</td>";
+        echo "<td>{$row_veth_buf['min_buf_medium']}</td>";
+        echo "<td>{$row_veth_buf['max_buf_medium']}</td>";
+        echo "<td>{$row_veth_buf['min_buf_large']}</td>";
+        echo "<td>{$row_veth_buf['max_buf_large']}</td>";
+        echo "<td>{$row_veth_buf['min_buf_huge']}</td>";
+        echo "<td>{$row_veth_buf['max_buf_huge']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }

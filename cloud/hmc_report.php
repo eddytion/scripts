@@ -3,11 +3,11 @@ require("header.php");
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 require 'config_events.php';
-$hmc = $_GET['name'];
+$hmc = filter_var($_GET['name'], FILTER_SANITIZE_STRING);
 $hmc = mysqli_real_escape_string($db,$hmc);
-print "<div class=\"row justify-content-center align-items-center\">";
-print "<div class=\"col-md-2\">";
-print "<div class=\"card border-info mb-3\" style=\"max-width: 20rem;\">
+echo "<div class=\"row justify-content-center align-items-center\">";
+echo "<div class=\"col-md-2\">";
+echo "<div class=\"card border-info mb-3\" style=\"max-width: 20rem;\">
                 <div class=\"card-header\"><i class=\"fas fa-tv\"></i>&nbsp;{$hmc}</div>
                     <div class=\"card-body text-info\">
                     ";
@@ -17,23 +17,23 @@ if(mysqli_num_rows($result_hmc_info) > 0)
 {
     while($row_hmc_info = mysqli_fetch_assoc($result_hmc_info))
     {
-        print "<p class=\"card-text\">";
-        print "<table class=\"table table-sm\">";
-        print "<tr>";
-        print "<td>Version: </td><td>" . $row_hmc_info['version'] . "</td>";
-        print "</tr><tr>";
-        print "<td>Serv Pack: </td><td>" . $row_hmc_info['servicepack'] . "</td>";
-        print "</tr><tr>";
-        print "<td>Model: </td><td>" . $row_hmc_info['model'] . "</td>";
-        print "</tr><tr>";
-        print "<td>Serial: </td><td>" . $row_hmc_info['serial_nr'] . "</td>";
-        print "</tr><tr>";
-        print "<td>IP: </td><td>" . $row_hmc_info['ip_addr'] . "</td>";
-        print "</tr></table>";
-        print "</p>";
+        echo "<p class=\"card-text\">";
+        echo "<table class=\"table table-sm\">";
+        echo "<tr>";
+        echo "<td>Version: </td><td>" . $row_hmc_info['version'] . "</td>";
+        echo "</tr><tr>";
+        echo "<td>Serv Pack: </td><td>" . $row_hmc_info['servicepack'] . "</td>";
+        echo "</tr><tr>";
+        echo "<td>Model: </td><td>" . $row_hmc_info['model'] . "</td>";
+        echo "</tr><tr>";
+        echo "<td>Serial: </td><td>" . $row_hmc_info['serial_nr'] . "</td>";
+        echo "</tr><tr>";
+        echo "<td>IP: </td><td>" . $row_hmc_info['ip_addr'] . "</td>";
+        echo "</tr></table>";
+        echo "</p>";
     }
 }
-print "</div></div></div>";
+echo "</div></div></div>";
 ?>
 <script type="text/javascript">
   google.charts.load("current", {packages:["corechart"]});
@@ -46,7 +46,7 @@ print "</div></div></div>";
             $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
             while($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC))
             {
-                print("['" . str_replace("'","",$row_EventsByHMC['text']) . "', " . $row_EventsByHMC['counter'] . "],");
+                echo("['" . str_replace("'","",$row_EventsByHMC['text']) . "', " . $row_EventsByHMC['counter'] . "],");
             }
             ?>
         ]);
@@ -85,24 +85,24 @@ if (mysqli_num_rows($result_hw_events) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_hw_event = mysqli_fetch_assoc($result_hw_events)) {
-        print "<tr>";
-        print "<td>{$row_hw_event['problem_num']}</td>";
+        echo "<tr>";
+        echo "<td>{$row_hw_event['problem_num']}</td>";
         if($row_hw_event['pmh_num'] == "")
         {
-            print "<td>N/A</td>";
+            echo "<td>N/A</td>";
         }
         else
         {
-            print "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
+            echo "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
         }
-        print "<td><i class=\"fas fa-search\"></i>&nbsp;<a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\" target=\"_blank\">{$row_hw_event['refcode']}</a></td>";
-        print "<td>{$row_hw_event['status']}</td>";
-        print "<td>{$row_hw_event['first_time']}</td>";
-        print "<td>{$row_hw_event['sys_name']}</td>";
-        print "<td>{$row_hw_event['sys_mtms']}</td>";
-        print "<td>{$row_hw_event['enclosure_mtms']}</td>";
-        print "<td>{$row_hw_event['text']}</td>";
-        print "</tr>";
+        echo "<td><i class=\"fas fa-search\"></i>&nbsp;<a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\" target=\"_blank\">{$row_hw_event['refcode']}</a></td>";
+        echo "<td>{$row_hw_event['status']}</td>";
+        echo "<td>{$row_hw_event['first_time']}</td>";
+        echo "<td>{$row_hw_event['sys_name']}</td>";
+        echo "<td>{$row_hw_event['sys_mtms']}</td>";
+        echo "<td>{$row_hw_event['enclosure_mtms']}</td>";
+        echo "<td>{$row_hw_event['text']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
 }

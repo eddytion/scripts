@@ -8,6 +8,6 @@ if (isset($_GET['hmc']) && isset($_GET['event_id'])) {
     $cmd = "/var/www/html/cloud/scripts/chsvcevent.py " . $hmc . " " . $event_id;
 
     echo '<pre>';
-    print(shell_exec($cmd));
+    echo(shell_exec($cmd));
     echo '</pre>';
 }

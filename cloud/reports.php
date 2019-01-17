@@ -22,7 +22,7 @@
           $result = mysqli_query($db, $sql);
           while($row = mysqli_fetch_array($result))
           {
-              print "['{$row['lparos']}', {$row['counter']}], \n";
+              echo "['{$row['lparos']}', {$row['counter']}], \n";
           }
           ?>
         ]);
@@ -53,7 +53,7 @@
           $result = mysqli_query($db, $sql);
           while($row = mysqli_fetch_array($result))
           {
-              print "['{$row['fw_level']}', {$row['counter']}], \n";
+              echo "['{$row['fw_level']}', {$row['counter']}], \n";
           }
           ?>
         ]);
@@ -85,7 +85,7 @@
           $result = mysqli_query($db, $sql);
           while($row = mysqli_fetch_array($result))
           {
-              print "['{$row['lparos']}', {$row['counter']}], \n";
+              echo "['{$row['lparos']}', {$row['counter']}], \n";
           }
           ?>
         ]);
@@ -117,7 +117,7 @@
           $result = mysqli_query($db, $sql);
           while($row = mysqli_fetch_array($result))
           {
-              print "['{$row['model']}', {$row['counter']}], \n";
+              echo "['{$row['model']}', {$row['counter']}], \n";
           }
           ?>
         ]);
@@ -148,8 +148,8 @@
           $sql = "SELECT (SELECT count(*) FROM lpar_fc) as count_fc, (SELECT count(*) from lpar_scsi) as count_scsi";
           $result = mysqli_query($db, $sql);
           $row = mysqli_fetch_array($result);
-          print "['NPIV', {$row['count_fc']}], \n";
-          print "['vSCSI', {$row['count_scsi']}] \n";
+          echo "['NPIV', {$row['count_fc']}], \n";
+          echo "['vSCSI', {$row['count_scsi']}] \n";
           ?>
         ]);
 
@@ -180,7 +180,7 @@
           $result = mysqli_query($db, $sql);
           while($row = mysqli_fetch_array($result))
           {
-              print "['{$row['msmodel']}', {$row['counter']}], \n";
+              echo "['{$row['msmodel']}', {$row['counter']}], \n";
           }
           ?>
         ]);

@@ -9,7 +9,7 @@ if (isset($_GET['site']) && is_string($_GET['site'])) {
     $string = mysqli_real_escape_string($db,$string);
 ?>
 <div class="alert alert-dark" role="alert">
-  <?php print("<strong>Events for {$string}</strong>"); ?>
+  <?php echo("<strong>Events for {$string}</strong>"); ?>
 </div>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
@@ -30,7 +30,7 @@ if (isset($_GET['site']) && is_string($_GET['site'])) {
             $result_EventsByType = mysqli_query($db, $query_EventsByType);
             while($row_EventsByType = mysqli_fetch_assoc($result_EventsByType))
             {
-                print("['" . str_replace("'","",$row_EventsByType['text']) . "', " . $row_EventsByType['counter'] . "],");
+                echo("['" . str_replace("'","",$row_EventsByType['text']) . "', " . $row_EventsByType['counter'] . "],");
             }
             ?>
         ]);
@@ -65,7 +65,7 @@ if (isset($_GET['site']) && is_string($_GET['site'])) {
             $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
             while($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC))
             {
-                print("['" . $row_EventsByHMC['hmc'] . "', " . $row_EventsByHMC['counter'] . "],");
+                echo("['" . $row_EventsByHMC['hmc'] . "', " . $row_EventsByHMC['counter'] . "],");
             }
             ?>
         ]);
@@ -134,26 +134,26 @@ else
                       <tbody>";
         }
         while ($row_hw_event = mysqli_fetch_assoc($result)) {
-            print "<tr>";
-            print "<td>{$row_hw_event['problem_num']}</td>";
+            echo "<tr>";
+            echo "<td>{$row_hw_event['problem_num']}</td>";
             if ($row_hw_event['pmh_num'] == "") {
-                print "<td>N/A</td>";
+                echo "<td>N/A</td>";
             } else {
-                print "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
+                echo "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
             }
-            print "<td><a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\"  target=\"_blank\"><i class=\"fas fa-search\"></i>&nbsp;{$row_hw_event['refcode']}</a></td>";
-            print "<td>{$row_hw_event['status']}</td>";
-            print "<td>{$row_hw_event['first_time']}</td>";
-            print "<td>{$row_hw_event['sys_name']}</td>";
-            print "<td>{$row_hw_event['sys_mtms']}</td>";
-            print "<td>{$row_hw_event['enclosure_mtms']}</td>";
-            print "<td>{$row_hw_event['text']}</td>";
+            echo "<td><a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\"  target=\"_blank\"><i class=\"fas fa-search\"></i>&nbsp;{$row_hw_event['refcode']}</a></td>";
+            echo "<td>{$row_hw_event['status']}</td>";
+            echo "<td>{$row_hw_event['first_time']}</td>";
+            echo "<td>{$row_hw_event['sys_name']}</td>";
+            echo "<td>{$row_hw_event['sys_mtms']}</td>";
+            echo "<td>{$row_hw_event['enclosure_mtms']}</td>";
+            echo "<td>{$row_hw_event['text']}</td>";
             if(isset($_GET['panel']) && $_GET['panel'] == "on")
             {
-                print "<td><a href=\"chsvcevent.php?hmc={$row_hw_event['hmc']}&event_id={$row_hw_event['problem_num']}\" onclick=\"return popitup('chsvcevent.php?hmc={$row_hw_event['hmc']}&event_id={$row_hw_event['problem_num']}')\" class=\"btn btn-primary\"><font color=\"#fff\">chsvcevent -o close -p " . $row_hw_event['problem_num'] . " -h " .  $row_hw_event['hmc'] . "</font></a></td>";
+                echo "<td><a href=\"chsvcevent.php?hmc={$row_hw_event['hmc']}&event_id={$row_hw_event['problem_num']}\" onclick=\"return popitup('chsvcevent.php?hmc={$row_hw_event['hmc']}&event_id={$row_hw_event['problem_num']}')\" class=\"btn btn-primary\"><font color=\"#fff\">chsvcevent -o close -p " . $row_hw_event['problem_num'] . " -h " .  $row_hw_event['hmc'] . "</font></a></td>";
             }
-            print "</tr>";
+            echo "</tr>";
         }
-        print "</tbody></table>";
+        echo "</tbody></table>";
     }
 }

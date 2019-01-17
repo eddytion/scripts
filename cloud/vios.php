@@ -123,7 +123,7 @@ ini_set('display_errors', 1);
     $sorted_ok = array_diff($vios_list, $sorted_errors);
     foreach ($sorted_errors as $value)
     {
-        print "
+        echo "
             <div class=\"col-sm-2\">
                 <div class=\"card border-danger mb-3\">
                   <div class=\"card-body text-danger\">
@@ -140,7 +140,7 @@ ini_set('display_errors', 1);
     
     foreach ($sorted_ok as $value)
     {
-        print "
+        echo "
             <div class=\"col-sm-2\">
                 <div class=\"card border-success mb-3\">
                   <div class=\"card-body text-success\">

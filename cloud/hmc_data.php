@@ -23,24 +23,27 @@ if (mysqli_num_rows($result_hw_events) > 0) {
                       </thead></tr>
                       <tbody>";
     while ($row_hw_event = mysqli_fetch_assoc($result_hw_events)) {
-        print "<tr>";
-        print "<td>{$row_hw_event['problem_num']}</td>";
+        echo "<tr>";
+        echo "<td>{$row_hw_event['problem_num']}</td>";
         if($row_hw_event['pmh_num'] == "")
         {
-            print "<td>N/A</td>";
+            echo "<td>N/A</td>";
         }
         else
         {
-            print "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
+            echo "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
         }
-        print "<td><a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\"  target=\"_blank\">{$row_hw_event['refcode']}</a></td>";
-        print "<td>{$row_hw_event['status']}</td>";
-        print "<td>{$row_hw_event['first_time']}</td>";
-        print "<td>{$row_hw_event['sys_name']}</td>";
-        print "<td>{$row_hw_event['sys_mtms']}</td>";
-        print "<td>{$row_hw_event['enclosure_mtms']}</td>";
-        print "<td>{$row_hw_event['text']}</td>";
-        print "</tr>";
+        echo "<td><a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\"  target=\"_blank\">{$row_hw_event['refcode']}</a></td>";
+        echo "<td>{$row_hw_event['status']}</td>";
+        echo "<td>{$row_hw_event['first_time']}</td>";
+        echo "<td>{$row_hw_event['sys_name']}</td>";
+        echo "<td>{$row_hw_event['sys_mtms']}</td>";
+        echo "<td>{$row_hw_event['enclosure_mtms']}</td>";
+        echo "<td>{$row_hw_event['text']}</td>";
+        echo "</tr>";
     }
-    print "</tbody></table>";
+    echo "</tbody></table>";
+}
+{
+    echo "<p>No data available for {$hmc}</p>";
 }
