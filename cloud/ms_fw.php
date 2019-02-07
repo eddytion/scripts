@@ -9,12 +9,13 @@ if(isset($_GET['msname']) && is_string($_GET['msname']))
     }
     else
     {
+        $msname = filter_var($_GET['msname'],FILTER_SANITIZE_STRING);
         $sql="
         SELECT *
         FROM ms_fw
-        WHERE ms_name=\"{$_GET['msname']}\" LIMIT 0,1";
+        WHERE ms_name='{$msname}' LIMIT 0,1";
         $result = mysqli_query($db,$sql);
-        if (mysqli_num_rows($result) > 0) 
+        if (mysqli_num_rows($result) > 0)
 	{
                 echo "<h3>Info from local DB</h3>";
 		echo "<table class=\"table\">";

@@ -21,7 +21,7 @@ def close_event(ip, problem):
     try:
         print("\n")
         print("[+] Attempting to connect to " + str(sys.argv[1]) + " using hscroot and default password")
-        ssh.connect(hostname=ip, port=22, username='hscroot', password="abc1234", timeout=15)
+        ssh.connect(hostname=ip, port=22, username='hscroot', password="start1234", timeout=15)
         print("[+] Attempting to close event " + str(sys.argv[2]) + " on HMC " + str(sys.argv[1]))
         print("[+] Sending the following command to " + str(sys.argv[1]) + ": chsvcevent -o close -p " +
               str(sys.argv[2]) + " -h " + str(ip))

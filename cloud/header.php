@@ -159,24 +159,34 @@ function popitup(url) {
 </head>
 <body>
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
-    <a class="navbar-brand" href="#"><img src="img/unnamed.png" height="50" width="50"></a>
+        <div class="navbar-header">
+            <a class="navbar-brand" href="index.php?action=start"><img src="img/unnamed.png" height="50" width="50"></a>
+        </div>
+        
   <ul class="navbar-nav">
-    <li class="nav-item active">
-      <a class="nav-link" href="index.php">Systems</a>
+    <li class="nav-item <?php if($_GET['action'] == 'start') { print "active"; } ?>">
+        <a class="nav-link" href="index.php?action=start"><i class="fas fa-server"></i>&nbsp;LPARS</a>
     </li>
-    <li class="nav-item active">
-      <a class="nav-link" href="reports.php">Reports</a>
+    <li class="nav-item <?php if($_GET['action'] == 'reports') { print "active"; } ?>">
+      <a class="nav-link" href="index.php?action=reports"><i class="fas fa-chart-pie"></i>&nbsp;Reports</a>
     </li>
-    <li class="nav-item active">
-      <a class="nav-link" href="vmware.php">VMWare</a>
+    <li class="nav-item <?php if($_GET['action'] == 'vmware') { print "active"; } ?>">
+      <a class="nav-link" href="index.php?action=vmware">VMWare</a>
     </li>
-    <li class="nav-item active">
-      <a class="nav-link" href="buildsheet.php">BuildSheet</a>
+    <li class="nav-item <?php if($_GET['action'] == 'hmc_hw_events') { print "active"; } ?>">
+      <a class="nav-link" href="index.php?action=hmc_hw_events">HMC Events</a>
     </li>
-    <li class="nav-item active">
-      <a class="nav-link" href="hmc_hw_events.php">HMC HW Events</a>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">ASMI</a>
+        <div class="dropdown-menu"aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="index.php?action=hmc_asmi_events">ASMI Events</a>
+            <a class="dropdown-item" href="index.php?action=hmc_asmi_deconfig">ASMI Deconfig Records</a>
+        </div>
     </li>
-    
+    <li class="nav-item <?php if($_GET['action'] == 'path_check') { print "active"; } ?>">
+      <a class="nav-link" href="index.php?action=path_check">Path Check</a>
+    </li>
+    </div>
   <form class="form-inline">
     <div class="input-group">
       <div class="input-group-prepend">
@@ -225,5 +235,5 @@ function popitup(url) {
         
 </div>
 <div id ="livesearchHMCSN">
-    
+
 </div>

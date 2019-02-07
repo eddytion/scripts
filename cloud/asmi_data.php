@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-require 'config_events.php';
+require 'config.php';
 $hmc = $_GET['hmc'];
 $hmc = mysqli_real_escape_string($db,$hmc);
 

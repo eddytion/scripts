@@ -9,7 +9,7 @@ ini_set('display_errors', 1);
         <div class="col-md-4 col-md-offset-1">
             <div class="alert alert-info" role="alert">
                 <?php
-                $query_last_update = "SELECT date_insert FROM hw_events WHERE status='Open' ORDER BY date_insert DESC LIMIT 0,1";
+                $query_last_update = "SELECT date_insert FROM asmi_events ORDER BY date_insert DESC LIMIT 0,1";
                 $result_last_update = mysqli_query($db, $query_last_update);
                 while($row_last_update = mysqli_fetch_assoc($result_last_update))
                 {
@@ -28,17 +28,17 @@ ini_set('display_errors', 1);
         var data = google.visualization.arrayToDataTable([
             ['Event', 'Nr'],
             <?php
-            $query_EventsByType = "SELECT count(text) as counter, text FROM `hw_events` WHERE status='Open' GROUP BY text";
+            $query_EventsByType = "SELECT count(failing_subsystem) as counter, failing_subsystem FROM `asmi_events` GROUP BY failing_subsystem";
             $result_EventsByType = mysqli_query($db, $query_EventsByType);
             while($row_EventsByType = mysqli_fetch_assoc($result_EventsByType))
             {
-                echo("['" . str_replace("'","",$row_EventsByType['text']) . "', " . $row_EventsByType['counter'] . "],");
+                echo("['" . str_replace("'","",$row_EventsByType['failing_subsystem']) . "', " . $row_EventsByType['counter'] . "],");
             }
             ?>
         ]);
 
         var options = {
-            title: 'Events by type',
+            title: 'Events by failing subsystem',
             is3D: false,
             pieHole: 0.4,
             legend: {position: 'labeled'}
@@ -56,7 +56,7 @@ ini_set('display_errors', 1);
         var data = google.visualization.arrayToDataTable([
             ['HMC', 'NrOfEvents'],
             <?php
-            $query_EventsByHMC = "SELECT count(hmc) as counter, hmc FROM hw_events WHERE status='Open' GROUP BY hmc";
+            $query_EventsByHMC = "SELECT count(hmc) as counter, hmc FROM asmi_events GROUP BY hmc";
             $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
             while($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC))
             {
@@ -78,50 +78,11 @@ ini_set('display_errors', 1);
           var selectedItem = chart.getSelection()[0];
           if (selectedItem) {
             var hmc = data.getValue(selectedItem.row, 0);
-            window.open('hmc_report.php?name=' + hmc, '_blank');
+            window.open('asmi_report.php?name=' + hmc, '_blank');
           }
         }
 
         google.visualization.events.addListener(chart, 'select', selectHandler);   
-        
-        chart.draw(data, options);
-    }
-</script>
-
-<script type="text/javascript">
-  google.charts.load("current", {packages:["corechart"]});
-    google.charts.setOnLoadCallback(drawChart);
-    function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-            ['HMC', 'NrOfEvents'],
-            <?php
-            $query_EventsBySite = "SELECT count(*) as counter, substring(hmc, 1, 4) as site FROM `hw_events` WHERE status='Open' GROUP by site ";
-            $result_EventsBySite = mysqli_query($db, $query_EventsBySite);
-            while($row_EventsBySite = mysqli_fetch_assoc($result_EventsBySite))
-            {
-                echo("['" . $row_EventsBySite['site'] . "', " . $row_EventsBySite['counter'] . "],");
-            }
-            ?>
-        ]);
-
-        var options = {
-            title: 'Events by Site',
-            is3D: false,
-            pieHole: 0.4,
-            legend: {position: 'labeled'}
-        };
-
-        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d_EventsBySite'));
-        
-        function selectHandler() {
-          var selectedItem = chart.getSelection()[0];
-          if (selectedItem) {
-            var hmc = data.getValue(selectedItem.row, 0);
-            window.open('hmc_report.php?site=' + hmc, '_blank');
-          }
-        }
-
-        google.visualization.events.addListener(chart, 'select', selectHandler);
         
         chart.draw(data, options);
     }
@@ -139,7 +100,7 @@ ini_set('display_errors', 1);
         var data = google.visualization.arrayToDataTable([
           ['Site', 'Opened HMC Events'],
           <?php
-          $query_map = "SELECT count(*) as counter, substring(hmc, 1, 2) as site FROM `hw_events` WHERE status='Open' GROUP by site";
+          $query_map = "SELECT count(*) as counter, substring(hmc, 1, 2) as site FROM `asmi_events` GROUP by site";
           $result_map = mysqli_query($db, $query_map);
           $gb_uk = 0;
           while($row_map = mysqli_fetch_assoc($result_map))
@@ -167,7 +128,7 @@ ini_set('display_errors', 1);
           var selectedItem = chart.getSelection()[0];
           if (selectedItem) {
             var site = data.getValue(selectedItem.row, 0);
-            window.open('hmc_events_report_site.php?site=' + site, '_blank');
+            window.open('hmc_asmi_report_site.php?site=' + site, '_blank');
           }
         }
         
@@ -214,7 +175,7 @@ ini_set('display_errors', 1);
         }
 
         foreach ($hmc_list as $value) {
-            $query_hw_events = "SELECT * FROM hw_events WHERE hmc='{$value}' AND status='Open'";
+            $query_hw_events = "SELECT * FROM asmi_events WHERE hmc='{$value}'";
             $result_hw_events = mysqli_query($db, $query_hw_events);
             while ($row_hw_events = mysqli_fetch_assoc($result_hw_events)) {
                 if ($row_hw_events['hmc'] == $value) {
@@ -233,12 +194,10 @@ ini_set('display_errors', 1);
                 <div class=\"card border-danger mb-3\">
                   <div class=\"card-body text-danger\">
                     <h5 class=\"card-title\"><i class=\"fas fa-exclamation-triangle\"></i>&nbsp;<a href=\"https://{$value}\" class=\"text-info\" target=\"_blank\"><u>{$value}</u></a></h5>
-                    <p class=\"card-text\">There are open events for this HMC. Click on details to find more</p>
+                    <p class=\"card-text\">There are ASMI events for this HMC. Click on details to find more</p>
                     <a href=\"#hmcDetails\" data-toggle=\"modal\" data-hmcname=\"{$value}\" class=\"btn-link\">Details</a>
                         |
-                    <a href=\"hmc_report.php?name={$value}\" target=\"_blank\" class=\"btn-link\">Report</a>
-                        |
-                    <a href=\"#asmiDetails\" data-toggle=\"modal\" data-hmcname=\"{$value}\" class=\"btn-link\">ASMI</a>
+                    <a href=\"asmi_report.php?name={$value}\" target=\"_blank\" class=\"btn-link\">Report</a>
                   </div>
                 </div>
             </div>
@@ -252,7 +211,7 @@ ini_set('display_errors', 1);
                 <div class=\"card border-success mb-3\">
                   <div class=\"card-body text-success\">
                     <h5 class=\"card-title\"><i class=\"far fa-check-circle\"></i>&nbsp;<a href=\"https://{$value}\" class=\"text-success\" target=\"_blank\"><u>{$value}</u></a></h5>
-                    <p class=\"card-text\">There are no opened events for this HMC.</p>
+                    <p class=\"card-text\">There are no ASMI events for this HMC.</p>
                   </div>
                 </div>
             </div>
@@ -314,34 +273,11 @@ $(document).ready(function(){
 
        $.ajax({
         method: 'GET',
-        url: 'hmc_data.php',
+        url: 'asmi_data.php',
         data: {hmc: hmc},
         success: function(data) {
           $('#hmc_details').html(data);
           $('#hmcDetails').modal("show");
-        },
-        error:function(err){
-          alert("error"+JSON.stringify(err));
-          console.log(err.message);
-        }
-    });
- });
-});
-</script>
-<script>
-$(document).ready(function(){ 
- $(".btn-link").on('click',function(){
-    var hmc = $(this).attr('data-hmcname');
-
-    $('.modal-body').html('loading data for ' + hmc);
-
-       $.ajax({
-        method: 'GET',
-        url: 'asmi_data.php',
-        data: {hmc: hmc},
-        success: function(data) {
-          $('#asmi_details').html(data);
-          $('#asmiDetails').modal("show");
         },
         error:function(err){
           alert("error"+JSON.stringify(err));

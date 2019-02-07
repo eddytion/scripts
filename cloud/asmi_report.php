@@ -42,17 +42,17 @@ echo "</div></div></div>";
         var data = google.visualization.arrayToDataTable([
             ['HMC', 'NrOfEvents'],
             <?php
-            $query_EventsByHMC = "SELECT count(*) as counter, text FROM hw_events WHERE hmc='{$hmc}' AND status='Open' GROUP BY text ";
+            $query_EventsByHMC = "SELECT count(*) as counter, failing_subsystem FROM asmi_events WHERE hmc='{$hmc}' GROUP BY failing_subsystem ";
             $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
             while($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC))
             {
-                echo("['" . str_replace("'","",$row_EventsByHMC['text']) . "', " . $row_EventsByHMC['counter'] . "],");
+                echo("['" . str_replace("'","",$row_EventsByHMC['failing_subsystem']) . "', " . $row_EventsByHMC['counter'] . "],");
             }
             ?>
         ]);
 
         var options = {
-            title: 'Events by Type',
+            title: 'Events by failing subsystem',
             is3D: false,
             pieHole: 0.4,
             legend: {position: 'labeled'}
@@ -62,46 +62,65 @@ echo "</div></div></div>";
         chart.draw(data, options);
     }
 </script>
-    <div class="col-md-10">
+
+<script type="text/javascript">
+  google.charts.load("current", {packages:["corechart"]});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['MS', 'NrOfEvents'],
+            <?php
+            $query_EventsByHMC = "SELECT count(*) as counter, msname FROM asmi_events WHERE hmc='{$hmc}' GROUP BY msname ";
+            $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
+            while($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC))
+            {
+                echo("['" . str_replace("'","",$row_EventsByHMC['msname']) . "', " . $row_EventsByHMC['counter'] . "],");
+            }
+            ?>
+        ]);
+
+        var options = {
+            title: 'Events by Managed System',
+            is3D: false,
+            pieHole: 0.4,
+            legend: {position: 'labeled'}
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d_EventsByMS'));
+        chart.draw(data, options);
+    }
+</script>
+
+    <div class="col-md-5">
         <div id="piechart_3d_EventsByType" style="width: 900px; height: 500px; display: block; margin: 0 auto;"></div>
+    </div>
+    <div class="col-md-5">
+        <div id="piechart_3d_EventsByMS" style="width: 900px; height: 500px; display: block; margin: 0 auto;"></div>
     </div>
 </div>
 <?php
-$query_hw_events = "SELECT * FROM hw_events WHERE hmc='{$hmc}' AND status='Open' ORDER BY pmh_num DESC";
+$query_hw_events = "SELECT * FROM asmi_events WHERE hmc='{$hmc}' ORDER BY timestamp DESC";
 $result_hw_events = mysqli_query($db, $query_hw_events);
 if (mysqli_num_rows($result_hw_events) > 0) {
     echo "<table class=\"table table-hover table-striped\" width=\"100%\">";
     echo "<thead>";
     echo "<tr>";
-    echo "<th>Problem Nr</th>
-                      <th>PMH</th>
-                      <th>Refcode</th>
-                      <th>Status</th>
-                      <th>First Time Reported</th>
-                      <th>System</th>
-                      <th>Failing MTMS</th>
-                      <th>Enclosure MTMS</th>
-                      <th>Error Text</th>
+    echo "<th>MS Name</th>
+                      <th>Log ID</th>
+                      <th>TimeStamp</th>
+                      <th>Failing Subsystem</th>
+                      <th>Severity</th>
+                      <th>SRC</th>
                       </thead></tr>
                       <tbody>";
     while ($row_hw_event = mysqli_fetch_assoc($result_hw_events)) {
         echo "<tr>";
-        echo "<td>{$row_hw_event['problem_num']}</td>";
-        if($row_hw_event['pmh_num'] == "")
-        {
-            echo "<td>N/A</td>";
-        }
-        else
-        {
-            echo "<td class=\"text-danger\">{$row_hw_event['pmh_num']}</td>";
-        }
-        echo "<td><i class=\"fas fa-search\"></i>&nbsp;<a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['refcode']}\" target=\"_blank\">{$row_hw_event['refcode']}</a></td>";
-        echo "<td>{$row_hw_event['status']}</td>";
-        echo "<td>{$row_hw_event['first_time']}</td>";
-        echo "<td>{$row_hw_event['sys_name']}</td>";
-        echo "<td>{$row_hw_event['sys_mtms']}</td>";
-        echo "<td>{$row_hw_event['enclosure_mtms']}</td>";
-        echo "<td>{$row_hw_event['text']}</td>";
+        echo "<td>{$row_hw_event['msname']}</td>";
+        echo "<td>{$row_hw_event['log_id']}</td>";
+        echo "<td>{$row_hw_event['timestamp']}</td>";
+        echo "<td>{$row_hw_event['failing_subsystem']}</td>";
+        echo "<td>{$row_hw_event['severity']}</td>";
+        echo "<td><i class=\"fas fa-search\"></i>&nbsp;<a href=\"https://www.ibm.com/support/home/search-results?q={$row_hw_event['src']}\" target=\"_blank\">{$row_hw_event['src']}</a></td>";
         echo "</tr>";
     }
     echo "</tbody></table>";

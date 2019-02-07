@@ -1,11 +1,11 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-require 'config_events.php';
+require 'config.php';
 $hmc = $_GET['hmc'];
 $hmc = mysqli_real_escape_string($db,$hmc);
 
-$query_hw_events = "SELECT * FROM hw_events WHERE hmc='{$hmc}'";
+$query_hw_events = "SELECT * FROM hw_events WHERE hmc='{$hmc}' AND status='Open'";
 $result_hw_events = mysqli_query($db, $query_hw_events);
 if (mysqli_num_rows($result_hw_events) > 0) {
     echo "<table class=\"table table-hover table-striped\" width=\"100%\">";
@@ -44,6 +44,7 @@ if (mysqli_num_rows($result_hw_events) > 0) {
     }
     echo "</tbody></table>";
 }
+else
 {
     echo "<p>No data available for {$hmc}</p>";
 }
