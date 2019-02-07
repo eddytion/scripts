@@ -1,19 +1,40 @@
+#!/bin/python3.6
+
 import requests
 import paramiko
 import datetime
 from bs4 import BeautifulSoup
+import mysql.connector
+import time
+import sys
 
 requests.packages.urllib3.disable_warnings()
 
 current_date = datetime.date.today()
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+mysql_date = time.strftime('%Y-%m-%d %H:%M:%S')
+HMC = sys.argv[1]
 
-HMC = "hmc01"
-
-csv = []
 mslist = []
-asmips = []
+
+DBUSER = "root"
+DBPASS = "mariadbpwd"
+DBHOST = "localhost"
+DBNAME = "cloud"
+DBPORT = 3306
+HMCPASSWD = "abc1234"
+HMCUSER = "hscroot"
+
+mydb = mysql.connector.connect(
+    host=DBHOST,
+    user=DBUSER,
+    passwd=DBPASS,
+    database=DBNAME,
+    port=DBPORT
+)
+
+mycursor = mydb.cursor()
 
 
 def get_asmip(hmc):
@@ -23,16 +44,17 @@ def get_asmip(hmc):
     for i in output:
         if len(i) > 0 and "No results were found." not in i:
             mslist.append(str(i).strip('\n'))
-    if len(mslist) > 0:
-        for i in mslist:
-            asmips.append(str(i).split(',')[1])
+    print(mslist)
 
 
 def get_events(hmc, asmip, formid, msname):
     events = []
+    deconfig_records = []
+    csv = []
+    csv2 = []
     login_values = {
         'user': 'admin',
-        'password': 'abcd',
+        'password': 'admin',
         'CSRF_TOKEN': '0',
         'asmip': asmip,
         'login': 'Log in'
@@ -65,15 +87,13 @@ def get_events(hmc, asmip, formid, msname):
 
     login_url = "https://" + hmc + "/asmproxy/AsmProxy/cgi"
     events_url = "https://" + hmc + "/asmproxy/AsmProxy/cgi?asmip=" + asmip + "&form=" + str(formid)
-    # deconfig_url = "https://" + hmc + "/asmproxy/AsmProxy/cgi?asmip=" + asmip + "&form=102"
+    deconfig_url = "https://" + hmc + "/asmproxy/AsmProxy/cgi?asmip=" + asmip + "&form=102"
     logout_url = "https://" + hmc + "/asmproxy/AsmProxy/cgi"
     try:
-        # print("Login url: " + login_url)
-        print("Events url: " + events_url)
+        print("Getting asmi events for " + str(msname))
         session = requests.session()
         session.verify = False
         r = session.post(login_url, data=login_values, verify=False, headers=login_headers)
-        print(r.cookies)
         print(r.cookies.get_dict())
         print(
             "######################################################################################################")
@@ -92,6 +112,21 @@ def get_events(hmc, asmip, formid, msname):
                 csv.append('DEFAULT;' + hmc + ';' + msname + ';' + ';'.join(events[num:num + 6]).rstrip(';'))
         print(
             "#####################################################################################################")
+        # print("Getting deconfig records for " + str(msname))
+        # d = session.get(deconfig_url, verify=False)
+        # if d.status_code == 200:
+        #     soup = BeautifulSoup(d.text, 'html.parser')
+        #     elem = soup.find("table")
+        #     for i in elem.findAll("td"):
+        #         if i:
+        #             deconfig_records.append(str(i.text).strip())
+        # result = range(1, len(deconfig_records), 5)
+        # for num, lines in enumerate(deconfig_records):
+        #     if num in result:
+        #         print(hmc + ';' + msname + ';' + ';'.join(deconfig_records[num:num + 4]).rstrip(';'))
+        #         csv2.append('DEFAULT;' + hmc + ';' + msname + ';' + ';'.join(deconfig_records[num:num + 4]).rstrip(';'))
+        # print(
+        #     "#####################################################################################################")
         logout_headers = {
             'Host': hmc,
             'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0',
@@ -107,16 +142,40 @@ def get_events(hmc, asmip, formid, msname):
             'Upgrade-Insecure-Requests': '1',
             'Expires': '0'
         }
-        print("logout: ")
-        print(logout_headers)
         session.post(logout_url, data=logout_values, verify=False, headers=logout_headers)
         r.cookies.clear_session_cookies()
         session.close()
-        with open("/tmp/asmi_events_" + str(msname) + ".csv", mode='wt', encoding='latin-1') as f:
-            for i in csv:
-                f.writelines(str(i) + "\n")
-    except:
+        if len(csv) > 0:
+            with open("/tmp/asmi_events_" + str(msname) + ".csv", mode='wt', encoding='latin-1') as f:
+                for i in set(csv):
+                    f.writelines(str(i) + ';' + mysql_date + "\n")
+            insert_events(msname)
+        # if len(csv2) > 0:
+        #     with open("/tmp/asmi_deconfig_" + str(msname) + ".csv", mode='wt', encoding='latin-1') as f:
+        #         for i in set(csv2):
+        #             f.writelines(str(i) + ';' + mysql_date + "\n")
+        #     insert_deconfig(msname)
+    except Exception as e:
+        print("Exception occurred: " + str(e))
         pass
+
+
+def insert_events(msname):
+    try:
+        query = "LOAD DATA LOCAL INFILE '" + '/tmp/asmi_events_' + str(msname) + ".csv" + "' IGNORE INTO TABLE cloud.asmi_events FIELDS TERMINATED BY ';' ENCLOSED BY '\"' LINES TERMINATED BY '\n'"
+        mycursor.execute(query)
+        mydb.commit()
+    except Exception as e:
+        print("Error occured while updating database: " + str(e))
+
+
+def insert_deconfig(msname):
+    try:
+        query = "LOAD DATA LOCAL INFILE '" + '/tmp/asmi_deconfig_' + str(msname) + ".csv" + "' IGNORE INTO TABLE cloud.asmi_deconfig FIELDS TERMINATED BY ';' ENCLOSED BY '\"' LINES TERMINATED BY '\n'"
+        mycursor.execute(query)
+        mydb.commit()
+    except Exception as e:
+        print("Error occured while updating database: " + str(e))
 
 
 get_asmip(HMC)
@@ -125,8 +184,19 @@ for x in mslist:
         asm = str(x).split(',')[1].rstrip('\n')
         ms = str(x).split(',')[0].rstrip('\n')
         get_events(HMC, asm, 30, ms)
-    elif "8284" in x:
+    elif "9119-MME" in x or "9009" in x:
         asm = str(x).split(',')[1].rstrip('\n')
         ms = str(x).split(',')[0].rstrip('\n')
         get_events(HMC, asm, 31, ms)
-# get_events(HMC, '172.16.255.254', 30)
+    elif "9119" in x:
+        asm = str(x).split(',')[1].rstrip('\n')
+        ms = str(x).split(',')[0].rstrip('\n')
+        get_events(HMC, asm, 30, ms)
+    elif "8408-44E" in x or "8408-E8E" in x:
+        asm = str(x).split(',')[1].rstrip('\n')
+        ms = str(x).split(',')[0].rstrip('\n')
+        get_events(HMC, asm, 31, ms)
+    else:
+        asm = str(x).split(',')[1].rstrip('\n')
+        ms = str(x).split(',')[0].rstrip('\n')
+        get_events(HMC, asm, 30, ms)
