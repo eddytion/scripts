@@ -92,20 +92,20 @@ sub check_paths()
     {
         print("FAIL: $location -> $vios has " . scalar(@failed_paths) . " failed paths, " . scalar(@missing_paths) . " missing paths, " . scalar(@defined_paths) . " defined paths, " . scalar(@disabled_paths) . " disabled paths, " . scalar(@data) . " total paths. Total affected luns: " . scalar(uniq(@affected_disks)) . " | Affected FC adapters: " . join(',',uniq(@affected_fc)) . " | Disks with insufficient paths: " . scalar(uniq(@disk_ins_paths)) . "\n");
         $msg = "FAIL: $location -> $vios has " . scalar(@failed_paths) . " failed paths, " . scalar(@missing_paths) . " missing paths, " . scalar(@defined_paths) . " defined paths, " . scalar(@disabled_paths) . " disabled paths, " . scalar(@data) . " total paths. Total affected luns: " . scalar(uniq(@affected_disks)) . " | Affected FC adapters: " . join(',',uniq(@affected_fc)) . " | Disks with insufficient paths: " . scalar(uniq(@disk_ins_paths)) . "\n";
-        #my $site = `uname -n | cut -c 1-4`;
-        #chomp($site);
-        #my $proxy = "https://" . $site . "sob011ccpsa:8080/";
-        #system("export https_proxy=$proxy; curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"$msg\"}' https://hooks.slack.com/services/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");
-        #system("export https_proxy=$proxy; wget -q --no-check-certificate --post-data='{\"text\":\"$msg\"}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/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'");
+        my $site = `uname -n | cut -c 1-4`;
+        chomp($site);
+        my $proxy = "https://" . $site . "sob011ccpsa:8080/";
+        system("export https_proxy=$proxy; curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"$msg\"}' https://hooks.slack.com/services/'");
+        system("export https_proxy=$proxy; wget -q --no-check-certificate --post-data='{\"text\":\"$msg\"}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/'");
     }
     elsif(scalar(@ssh_errors) > 0)
     {
         print("FAIL: $location -> $vios returned an error while connecting \n");
         $msg = "FAIL: $location -> $vios returned an error while connecting \n";
-        #my $site = `uname -n | cut -c 1-4`;
-        #chomp($site);
-        #my $proxy = "https://" . $site . "sob011ccpsa:8080/";
-        #system("curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"$msg\"}' https://hooks.slack.com/services/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");
+        my $site = `uname -n | cut -c 1-4`;
+        chomp($site);
+        my $proxy = "https://" . $site . "sob011ccpsa:8080/";
+        system("curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"$msg\"}' https://hooks.slack.com/services/");
     }
     else
     {
