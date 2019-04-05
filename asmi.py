@@ -23,7 +23,7 @@ DBPASS = "mariadbpwd"
 DBHOST = "localhost"
 DBNAME = "cloud"
 DBPORT = 3306
-HMCPASSWD = "abc1234"
+HMCPASSWD = "start1234"
 HMCUSER = "hscroot"
 
 mydb = mysql.connector.connect(
@@ -38,7 +38,7 @@ mycursor = mydb.cursor()
 
 
 def get_asmip(hmc):
-    ssh.connect(hostname=hmc, username='hscroot', password='abc1234', timeout=120)
+    ssh.connect(hostname=hmc, username='hscroot', password='start1234', timeout=120)
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('lssyscfg -r sys -F name,ipaddr')
     output = ssh_stdout.readlines()
     for i in output:
@@ -54,7 +54,7 @@ def get_events(hmc, asmip, formid, msname):
     csv2 = []
     login_values = {
         'user': 'admin',
-        'password': 'admin',
+        'password': 'admin123',
         'CSRF_TOKEN': '0',
         'asmip': asmip,
         'login': 'Log in'

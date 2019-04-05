@@ -6,14 +6,16 @@ import datetime
 import multiprocessing
 import logging
 import mysql.connector
+import time
 
 DBUSER = "root"
 DBPASS = "mariadbpwd"
 DBHOST = "localhost"
-DBNAME = "events"
+DBNAME = "cloud"
 DBPORT = 3306
 
 current_date = datetime.date.today()
+mysql_date = time.strftime('%Y-%m-%d %H:%M:%S')
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 threads = []
@@ -41,24 +43,37 @@ class HmcEvents(object):
         self.events_csv = "/tmp/events_" + str(hmc) + "_" + str(current_date) + ".csv"
 
     def get_hw_events(self, hmc):
-        ssh.connect(hostname=hmc, username='hscroot', password='start1234', timeout=120)
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('lssvcevents -t hardware --filter \'status=Open\' -F problem_num,pmh_num,refcode,status,first_time,sys_name,sys_mtms,enclosure_mtms,text')
-        output = ssh_stdout.readlines()
-        for i in output:
-            if len(i) > 0 and "No results were found." not in i:
-                self.events.append([i])
-        with open(self.events_csv, 'a') as f:
-            for line in self.events:
-                if "#" not in line[0]:
-                    print('DEFAULT' + ',' + str(hmc) + ',' + line[0])
-                    f.write('DEFAULT' + ',' + str(hmc) + ',' + line[0])
+        try:
+            ssh.connect(hostname=hmc, username='hscroot', password='start1234', timeout=30)
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                'lssvcevents -t hardware -F problem_num,pmh_num,refcode,status,first_time,sys_name,sys_mtms,enclosure_mtms,text',
+                timeout=30)
+            output = ssh_stdout.readlines()
+            for i in output:
+                if len(i) > 0 and "No results were found." not in i:
+                    self.events.append([i])
+            with open(self.events_csv, 'w') as f:
+                for line in self.events:
+                    if "#" not in line[0]:
+                        print('DEFAULT' + ',' + str(hmc) + ',' + mysql_date + ',' + line[0])
+                        f.write('DEFAULT' + ',' + str(hmc) + ',' + mysql_date + ',' + line[0])
+        except Exception as e:
+            print("Exception occurred for " + str(hmc) + " : " + str(e))
+            with open(self.events_csv, 'w') as f:
+                f.write("DEFAULT," + str(
+                    hmc) + ',' + mysql_date + ",99999,Script_ERR,Python_ERR,Open," + mysql_date + "," + str(
+                    hmc) + "," + str(
+                    hmc) + "," + str(hmc) + ",\"Error reported by script: " + str(e) + "\"")
+        finally:
+            ssh.close()
 
     def update_database_hw_events(self):
         try:
-            query = "LOAD DATA LOCAL INFILE '" + self.events_csv + "' IGNORE INTO TABLE events.hw_events FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n'"
+            query = "LOAD DATA LOCAL INFILE '" + self.events_csv + "' IGNORE INTO TABLE cloud.hw_events FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n'"
             mycursor.execute(query)
             mydb.commit()
-        except:
+        except Exception as e:
+            print("Exception: " + str(e))
             pass
 
 
