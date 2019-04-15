@@ -14,7 +14,6 @@ open(my $fh, '>', $idfile);
 print($fh $identity);
 close($fh);
 chmod 0400, $idfile;
-my $result_file = "/tmp/.path_scan_slack.out";
 
 my $hmc = $ARGV[0];
 
