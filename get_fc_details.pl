@@ -12,7 +12,7 @@ my $idfile = "/tmp/tmpid.key";
 unlink($idfile) if -e $idfile;
 open(my $fh, '>', $idfile);
 print($fh $identity);
-#close($fh);
+close($fh);
 chmod 0400, $idfile;
 my $result_file = "/tmp/.path_scan_slack.out";
 
