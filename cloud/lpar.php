@@ -141,7 +141,8 @@ if(isset($_GET['lpar']) && is_string($_GET['lpar']))
 		      <th>Trunk [Y/N]</th>
 		      <th>Port VLAN</th>
 		      <th>V-Switch</th>
-		      <th>MAC Address</th>";
+		      <th>MAC Address</th>
+                      <th>Additional VLANs</th>";
 		echo "</tr></thead>";
 		while($row = mysqli_fetch_assoc($result)) 
 		{
@@ -151,7 +152,8 @@ if(isset($_GET['lpar']) && is_string($_GET['lpar']))
                              echo "</td><td>" . 
                              $row["port_vlan_id"] . "</td><td>" . 
                              $row["vswitch"] . "</td><td>" .
-                             $row["mac_addr"] . "</td>";
+                             $row["mac_addr"] . "</td><td>" .
+                             $row["addl_vlan_ids"] . "</td>";
 			echo "</tr>";
 		}
 		echo "</table>";

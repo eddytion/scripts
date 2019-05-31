@@ -3,13 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/var/www/html/cloud/hmc_report.php</file>
-            <file>file:/var/www/html/cloud/hmc_events_report_site.php</file>
-            <file>file:/var/www/html/cloud/hmc_hw_events.php</file>
+            <file>file:/var/www/html/cloud/upload.php</file>
             <file>file:/var/www/html/cloud/asmi_report.php</file>
-            <file>file:/var/www/html/cloud/index.php</file>
-            <file>file:/var/www/html/cloud/hmc_asmi_events.php</file>
-            <file>file:/var/www/html/cloud/hmc_asmi_report_site.php</file>
+            <file>file:/var/www/html/cloud/vios.php</file>
+            <file>file:/var/www/html/cloud/header2.php</file>
+            <file>file:/var/www/html/cloud/systems.php</file>
+            <file>file:/var/www/html/cloud/livesearchHMCSN.php</file>
         </group>
     </open-files>
 </project-private>

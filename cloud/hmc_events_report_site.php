@@ -19,9 +19,9 @@ if (isset($_GET['site']) && is_string($_GET['site'])) {
                 ['Event', 'Nr'],
     <?php
     if ($string == "GB") {
-        $query_EventsByType = "SELECT count(text) as counter, text FROM `hw_events` WHERE hmc LIKE 'gb%' OR hmc LIKE 'uk%' GROUP BY text";
+        $query_EventsByType = "SELECT count(text) as counter, text FROM `hw_events` WHERE status='Open' AND (hmc LIKE 'gb%' OR hmc LIKE 'uk%') GROUP BY text";
     } else {
-        $query_EventsByType = "SELECT count(text) as counter, text FROM `hw_events` WHERE hmc LIKE '{$string}%' GROUP BY text";
+        $query_EventsByType = "SELECT count(text) as counter, text FROM `hw_events` WHERE status='Open' AND hmc LIKE '{$string}%' GROUP BY text";
     }
     $result_EventsByType = mysqli_query($db, $query_EventsByType);
     while ($row_EventsByType = mysqli_fetch_assoc($result_EventsByType)) {
@@ -50,9 +50,9 @@ if (isset($_GET['site']) && is_string($_GET['site'])) {
                 ['HMC', 'NrOfEvents'],
     <?php
     if ($string == "GB") {
-        $query_EventsByHMC = "SELECT count(hmc) as counter, hmc FROM hw_events WHERE hmc LIKE 'gb%' OR hmc LIKE 'uk%' GROUP BY hmc";
+        $query_EventsByHMC = "SELECT count(hmc) as counter, hmc FROM hw_events WHERE status='Open' AND (hmc LIKE 'gb%' OR hmc LIKE 'uk%') GROUP BY hmc";
     } else {
-        $query_EventsByHMC = "SELECT count(hmc) as counter, hmc FROM hw_events WHERE hmc LIKE '{$string}%' GROUP BY hmc";
+        $query_EventsByHMC = "SELECT count(hmc) as counter, hmc FROM hw_events WHERE status='Open' AND hmc LIKE '{$string}%' GROUP BY hmc";
     }
     $result_EventsByHMC = mysqli_query($db, $query_EventsByHMC);
     while ($row_EventsByHMC = mysqli_fetch_assoc($result_EventsByHMC)) {
@@ -83,9 +83,9 @@ if (isset($_GET['site']) && is_string($_GET['site'])) {
     </div>
     <?php
     if ($string == "GB") {
-        $query = "select * from hw_events where hmc like 'gb%' OR hmc LIKE 'uk%' ORDER BY pmh_num DESC";
+        $query = "select * from hw_events where status='Open' AND (hmc like 'gb%' OR hmc LIKE 'uk%') ORDER BY pmh_num DESC";
     } else {
-        $query = "select * from hw_events where hmc like '{$string}%' ORDER BY pmh_num DESC";
+        $query = "select * from hw_events where status='Open' AND hmc like '{$string}%' ORDER BY pmh_num DESC";
     }
     $result = mysqli_query($db, $query);
     if (mysqli_num_rows($result) > 0) {
