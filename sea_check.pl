@@ -16,6 +16,8 @@ close($fh);
 chmod 0400, $idfile;
 my $result_file = "/tmp/.sea_scan_slack.out";
 
+my $ssh_opts = " -o BatchMode=yes -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin ";
+
 package SeaCheck;
 sub new
 {
@@ -48,7 +50,7 @@ sub check_sea_stat()
 {
     my ($self) = @_;
     my $vios = $self->{_viosName};
-    my $sea_count_test = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lsdev -type adapter | grep -c 'Shared Ethernet Adapter'"`;
+    my $sea_count_test = `ssh $ssh_opts $vios "ioscli lsdev -type adapter | grep -c 'Shared Ethernet Adapter'"`;
     chomp($sea_count_test);
     if($sea_count_test eq "0")
     {
@@ -56,20 +58,20 @@ sub check_sea_stat()
     }
     else
     {
-        my @sealist = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lsdev -type adapter | grep 'Shared Ethernet Adapter'" | awk {'print \$1'}`;
+        my @sealist = `ssh $ssh_opts $vios "ioscli lsdev -type adapter | grep 'Shared Ethernet Adapter'" | awk {'print \$1'}`;
         chomp(@sealist);
         foreach my $sea (@sealist)
         {
             my $sea_macs;
-            my $err_count = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'OUT_OF_SYNC|Down'" | tr '\n' ',' | tr '\t' ' ' | sed 's/.\$//g'`;
-            my $sea_state = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'PRIMARY|BACKUP'"`;
-            my $sea_priority = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -w 'Priority:' | grep -vE 'FCOE|Active|0x'" | cut -f 2 -d : | sed 's/ //g'`;
-            $sea_macs = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'Actor System:|Partner System:'" | cut -f 2 -d : | sed s'/ //g' | tr '\n' ':' | sed 's/.\$//g'`;
-            my $sea_hamode = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lsdev -dev $sea -attr ha_mode | tail -1"`;
+            my $err_count = `ssh $ssh_opts $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'OUT_OF_SYNC|Down'" | tr '\n' ',' | tr '\t' ' ' | sed 's/.\$//g'`;
+            my $sea_state = `ssh $ssh_opts $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'PRIMARY|BACKUP'"`;
+            my $sea_priority = `ssh $ssh_opts $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -w 'Priority:' | grep -vE 'FCOE|Active|0x'" | cut -f 2 -d : | sed 's/ //g'`;
+            $sea_macs = `ssh $ssh_opts $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'Actor System:|Partner System:'" | cut -f 2 -d : | sed s'/ //g' | tr '\n' ':' | sed 's/.\$//g'`;
+            my $sea_hamode = `ssh $ssh_opts $vios "ioscli lsdev -dev $sea -attr ha_mode | tail -1"`;
             chomp($err_count, $sea_state, $sea_priority, $sea_macs, $sea_hamode);
             if($sea_macs eq "" || $sea_macs !~ m/-/x)
             {
-                $sea_macs = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'Hardware Address:" | cut -f 2,3,4,5,6,7 -d : | sed s'/ //g' | tr '\n' '|' | sed 's/.\$//g'`;
+                $sea_macs = `ssh $ssh_opts $vios "echo 'entstat -d $sea 2>/dev/null' | oem_setup_env | grep -E 'Hardware Address:" | cut -f 2,3,4,5,6,7 -d : | sed s'/ //g' | tr '\n' '|' | sed 's/.\$//g'`;
                 chomp($sea_macs);
             }
             $vios =~ s/.ibr.ssm.sdc.gts.ibm.com//g;
@@ -102,7 +104,7 @@ sub check_sea_stat()
 
 my @a_vioses;
 my @threads;
-@a_vioses = `grep VIO /usr/local/etc/dsadm.viostsm.db | cut -f 2,4 -d : | grep -v "^#" | sort | uniq`;
+@a_vioses = `grep VIO /usr/local/etc/dsadm.viostsm.db | cut -f 1,4 -d : | grep -v "^#" | sort | uniq`;
 chomp(@a_vioses);
 
 sub post2slack
@@ -124,8 +126,8 @@ sub post2slack
     print(join('\n', uniq(@slack_msg)));
     my $msg = join('\n', uniq(@slack_msg));
     print("{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"SEA status for $title\",\"text\":\"$msg\"}]}");
-    #system("export https_proxy=$proxy; /usr/local/bin/wget_112 --no-check-certificate --post-data='{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"SEA status for $title\",\"text\":\"$msg\"}]}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/'");
-    #system("export https_proxy=$proxy; /usr/local/bin/wget_112 --no-check-certificate --post-data='{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"SEA status for $title\",\"text\":\"$msg\"}]}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/'");
+    system("export https_proxy=$proxy; /usr/local/bin/wget_112 --no-check-certificate --post-data='{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"SEA status for $title\",\"text\":\"$msg\"}]}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/'");
+    system("export https_proxy=$proxy; /usr/local/bin/wget_112 --no-check-certificate --post-data='{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"SEA status for $title\",\"text\":\"$msg\"}]}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/'");
 }
 
 for my $i (@a_vioses)
