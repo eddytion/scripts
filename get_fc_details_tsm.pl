@@ -7,16 +7,16 @@ print("HOSTNAME: HW MODEL: OSLEVEL: iFixes: FC ADAPTERS(NAME:PART:MCODE): MPIO V
 sub get_data()
 {
     my $v = shift;
-    my $system_model = `ssh -q -l admin $v "uname -M"`;
-    my $ioslevel = `ssh -q -l admin $v "oslevel -s"`;
-    my $efixes = `ssh -q -l admin $v "sudo emgr -P | grep installp | awk {'print \\\$3'} | tr '\\n' ',' | sed 's/.\$//g'"`;
-    my @fcs_phys = `ssh -q -l admin $v "lsdev -Cc adapter | grep fcs | grep -v Virtual | awk {'print \\\$1'}" | sed 's/\,\$//g'`;
+    my $system_model = `ssh -q -l ibmadmin $v "uname -M"`;
+    my $ioslevel = `ssh -q -l ibmadmin $v "oslevel -s"`;
+    my $efixes = `ssh -q -l ibmadmin $v "sudo emgr -P | grep installp | awk {'print \\\$3'} | tr '\\n' ',' | sed 's/.\$//g'"`;
+    my @fcs_phys = `ssh -q -l ibmadmin $v "lsdev -Cc adapter | grep fcs | grep -v Virtual | awk {'print \\\$1'}" | sed 's/\,\$//g'`;
     chomp(@fcs_phys);
-    my $details = `ssh -q -l admin $v "for f in \\\$(lsdev -Cc adapter | grep fcs | grep -v Virtual | awk {'print \\\$1'}); do pn=\\\$(lscfg -vpl \\\$f | grep 'Part Number' | cut -f 18 -d .); mc=\\\$(sudo lsmcode -cd \\\$f | tr '\\n' ' ' | awk {'print \\\$8'}); echo \\\$f:\\\$pn:\\\$mc;done" | tr '\\n' ' ' | sed 's/\\. /,/g'`;
+    my $details = `ssh -q -l ibmadmin $v "for f in \\\$(lsdev -Cc adapter | grep fcs | grep -v Virtual | awk {'print \\\$1'}); do pn=\\\$(lscfg -vpl \\\$f | grep 'Part Number' | cut -f 18 -d .); mc=\\\$(sudo lsmcode -cd \\\$f | tr '\\n' ' ' | awk {'print \\\$8'}); echo \\\$f:\\\$pn:\\\$mc;done" | tr '\\n' ' ' | sed 's/\\. /,/g'`;
     chomp($details);
-    my $mpio = `ssh -q -l admin $v "lslpp -l | egrep 'MPIO Disk|MPIO FCP' | sort | uniq | awk {'print \\\$1'}" | tr '\\n' ',' | sed 's/\,\$//g'`;
-    my $sddpcm = `ssh -q -l admin $v "lslpp -l | grep 'IBM SDD PCM' | sort | uniq | awk {'print \\\$2'}"`;
-    my $atape = `ssh -q -l admin $v "lslpp -l | grep 'Atape.driver' | sort | uniq | awk {'print \\\$2'}"`;
+    my $mpio = `ssh -q -l ibmadmin $v "lslpp -l | egrep 'MPIO Disk|MPIO FCP' | sort | uniq | awk {'print \\\$1'}" | tr '\\n' ',' | sed 's/\,\$//g'`;
+    my $sddpcm = `ssh -q -l ibmadmin $v "lslpp -l | grep 'IBM SDD PCM' | sort | uniq | awk {'print \\\$2'}"`;
+    my $atape = `ssh -q -l ibmadmin $v "lslpp -l | grep 'Atape.driver' | sort | uniq | awk {'print \\\$2'}"`;
     chomp($system_model, $ioslevel, $efixes, $details, $mpio, $sddpcm, $atape);
     $details =~ s/,$//;
     print("$v: Model => $system_model: AIX => $ioslevel: EMGR => $efixes: FC => $details: MPIO => $mpio: SDDPCM => $sddpcm: ATAPE => $atape\n");

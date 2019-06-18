@@ -93,8 +93,8 @@ sub get_vios_list()
             {
                 $vios_type = "VIO Server - LAN B";
             }
-            write2file("$lpar_name:$lpar_name.ibr.ssm.sdc.com:VIO:$location:VIO:VIO_$location:Virtual::$lpar_state" . "::" . "$vios_type" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
-            print("$lpar_name:$lpar_name.ibr.ssm.sdc.com:VIO:$location:VIO:VIO_$location:Virtual::$lpar_state" . "::" . "$vios_type" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
+            write2file("$lpar_name:$lpar_name.ibr.ssm.sdc.gts.ibm.com:VIO:$location:VIO:VIO_$location:Virtual::$lpar_state" . "::" . "$vios_type" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
+            print("$lpar_name:$lpar_name.ibr.ssm.sdc.gts.ibm.com:VIO:$location:VIO:VIO_$location:Virtual::$lpar_state" . "::" . "$vios_type" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
         }
         elsif($line =~ m/aixlinux/i && $line =~ m/tsm/i && $line =~ m/ccpx/i)
         {
@@ -126,8 +126,8 @@ sub get_vios_list()
             {
                 $location = "POD";
             }
-            write2file("$lpar_name:$lpar_name.ssm.com:AIX:$location:TSM:TSM_$location:".$tsm_type."::$lpar_state" . "::" . "Tivoli Storage Manager" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
-            print("$lpar_name:$lpar_name.ssm.sdc.com:AIX:$location:TSM:TSM_$location:".$tsm_type."::$lpar_state" . "::" . "Tivoli Storage Manager" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
+            write2file("$lpar_name:$lpar_name.ssm.sdc.gts.ibm.com:AIX:$location:TSM:TSM_$location:".$tsm_type."::$lpar_state" . "::" . "Tivoli Storage Manager" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
+            print("$lpar_name:$lpar_name.ssm.sdc.gts.ibm.com:AIX:$location:TSM:TSM_$location:".$tsm_type."::$lpar_state" . "::" . "Tivoli Storage Manager" . ":::" . "$managed_system:$lparenv:$lpar_rmc_ipaddr");
         }
     }
 }

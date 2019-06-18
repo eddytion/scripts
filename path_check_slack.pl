@@ -2,6 +2,31 @@
 
 my $identity = <<EOF;
 -----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAz0zo+L137+CZLPDR+vm9J+VzgKlOWTecy8SOgdUaZ9aNtILo
+pDQ0cYbAfWRVfPPDDo8tR6wMet1jZizucvg1yTA9ANXKMYdp7nEnP5kjaiSGxWqB
+JKg4rraX5gMURLfU14av0lfFAExsDWfmXPybqkJwt0FoAIOsUnJbDoN/eBye/5UL
+AoMIgRqNe8oCSCzEvlSEIN/0Ari6G3riR8cNX2VTGtQye94X9io60V6YWnYj7Q0A
+fya8XXuOq2n4P7s7mMu7hdF125aGFKhDEVSqHQmfOdZYdmBy+MSy5+HUjN5j5cfT
+/KkvASnXPOrTUP3DzwakFZkwXO4ChRFf/+2hlQIBIwKCAQEAjiYcGEdoL3VwWVSt
+PmIbTo61mg2yEUq0qPvPbviHIqHAQUPSub1lyjCD/jYr/ej6yCeqBULGuqZwC4yG
+QDUsMi+0zV9mE1WKd54MSN4Jp96ITNtRPbUuLqkXs6pXCoyvNLQgyr/Xiy0W5J8E
+XQT9Bwj81W6ttzW3/gVFwM8y1gPCLVSIGSAl/cEPF1UX6h6FSsO9QD9d3jCXSI6x
+INEkdKa8B/lCKYPE9UlvnrBDmkLwem8Iw2HgieaI6P2ngOVEKVhH5ducxRiJFVLl
+mxEWp05HuZbdCCrIJp6hEIR23ejFtxbxY7cOJOCLRHSRxoIqAPap0SCIjpmbiXbS
+SHan6wKBgQD7YQFRia63RF35JYpTc19mxj7EKHBQ2nMRys79MgCYJPger4Wt/fp0
+JdHrpnHC6K51Ok3k/wBC82P7GOJmN6MnL4bULnZ9MQ7XZxwfi38XP2b1+87stPnW
+R+uGqSlGWt99qXbsNlf2N2ws+xCPNM9V86eHVSQT4hEiCcT9T2iH4wKBgQDTHHhy
+/trEgAMI/uOWn2DblbhL+r3k7ul2XDEixerKuvoM362urAN56qKMY4EdhiYQADKE
+DeJnS6dhPsBTFsm7rPl+fXq0Cxk8GR3qA7H8fvsrT2C+wCg4zdyBW/dg2QtwkU9y
+ajuZfqDfKLBE2rCbRKIPxNBVVZIy/X8asYK6JwKBgHoZLIawlrDJb3kDmvVVS5hR
+qXU4No2r7r9/w5+NUL7tYpKPxJZWyhsoUAS+jwbmC5gGYFlIqFsIgQTu1F2IvPXG
+oJLx/wmbfDy9Dajr++a4ZTWmMU5mh/pdcmX6ZIFCFMgB2q0+94Y4LTprUS+dTsNZ
+FttVPWi+QtYEvsQt4lChAoGATmmpFMUPbY6iCqfQ4CyRsKVTFOgapX1PZnoDnzOR
+uQOetFMUn/a/dm0Xzb6PCvdP91CHyqYSQ5/B06mX5Fjr1/5rTD08ND6i+RCktgFf
+XcjDsQA54HNCI7otVJ6AdG3frXfNDT1mmBkXLlDxA6GvT50mQF8LjWjtKOHQH9uI
+U8UCgYEAoiPVNEgAXQn4m6G+q7TaA6OuiYDW/yNOLaxzKPUaGX73Gfq1TgWqUSbz
+EPojzY43tl+teilwbKnLPYM3GbZThLq/u11CVTC75EHvKueUczLyuf3bgIIXyzik
+r3Tirv51U0409UEZ3Sat1h2acB4hsPbcqSeffM+aqP2x3C6Ll8M=
 -----END RSA PRIVATE KEY-----
 EOF
 
@@ -61,9 +86,8 @@ sub check_paths()
     my $vios = $self->{_viosName};
     my $location = $self->{_viosLocation};
     my $debug = $self->{_debug};
-    my $vios_disk_file = "/tmp/.disklist_$vios";
     my @data;
-    my $path_count_test = `ssh -i $idfile -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lspath | sed 's/\ \ */\,/g' | grep -c fscsi"`;
+    my $path_count_test = `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lspath | sed 's/\ \ */\,/g' | grep -c fscsi"`;
     chomp($path_count_test);
     if($path_count_test eq "0")
     {
@@ -71,14 +95,16 @@ sub check_paths()
     }
     elsif(`echo $?` != 0)
     {
+        print(`echo return code $?` . "\n");
         push(@ssh_errors, "ERROR");
     }
     else
     {
-        @data = eval { `ssh -i $idfile -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lspath | sed 's/\ \ */\,/g' | grep fscsi"`; };
+        @data = eval { `ssh -i $idfile -o StrictHostKeyChecking=no -o ConnectTimeout=45 -q -o ConnectionAttempts=1 -l padmin $vios "ioscli lspath | sed 's/\ \ */\,/g' | grep fscsi"`; };
         unless(@data)
         {
             print $@;
+            print(`echo return code $?` . "\n");
             push(@ssh_errors, $@);
         }
         foreach my $line (@data)
@@ -92,7 +118,7 @@ sub check_paths()
         {
             my @a_path_params = split(/\,/, $path);
             my $s_disk = $a_path_params[1];
-            my $disk_count = grep(/^$s_disk$/, @luns);
+            my $disk_count = grep(/$s_disk/, @luns);
             chomp($disk_count);
 
             if($location =~ m/INFRA/i && $disk_count < 4)
@@ -150,7 +176,8 @@ sub check_paths()
     }
     elsif(scalar(@ssh_errors) > 0)
     {
-        print("FAIL: $location -> $vios returned an error while connecting \n");
+        print("ARRRAY: @ssh_errors \n");
+        print("FAIL: $location -> $vios returned an error while connecting $@ --> $? --> $! --> END \n");
         my $msg = "FAIL: $location -> $vios returned an error while connecting \n";
         write2file($msg);
     }
@@ -161,7 +188,6 @@ sub check_paths()
 }
 1;
 
-
 use strict;
 use warnings FATAL => 'all';
 use threads;
@@ -169,7 +195,7 @@ use threads;
 my @a_vioses;
 my @threads;
 
-my ($details, $vios) = @ARGV;
+my ($details, $vios, $op) = @ARGV;
 if(defined($details) && $details =~ m/^-[Dd]/)
 {
     if(!defined($vios))
@@ -178,12 +204,12 @@ if(defined($details) && $details =~ m/^-[Dd]/)
     }
     else
     {
-        @a_vioses = `grep $vios /usr/local/etc/dsadm.hostdb | grep SAN | cut -f 2,4 -d : | grep -v "^#" | sort | uniq | sed 's/.ibr.ssm.sdc//g'`;
+        @a_vioses = `grep $vios /usr/local/etc/dsadm.viostsm.db | grep SAN | cut -f 2,4 -d : | grep -v "^#" | sort | uniq`;
     }
 }
 else
 {
-    @a_vioses = `grep VIO /usr/local/etc/dsadm.hostdb | grep SAN | cut -f 2,4 -d : | grep -v "^#" | sort | uniq | sed 's/.ibr.ssm.sdc//g'`;
+    @a_vioses = `grep VIO /usr/local/etc/dsadm.viostsm.db | grep SAN | cut -f 2,4 -d : | grep -v "^#" | sort | uniq`;
 }
 chomp(@a_vioses);
 
@@ -208,10 +234,10 @@ sub post2slack
 
     }
     print("\n\n\n") ;
-    print(join('\n',uniq(@slack_msg)));
-    my $msg = join('\n',uniq(@slack_msg));
+    print(join('\n', PathCheck::uniq(@slack_msg)));
+    my $msg = join('\n', PathCheck::uniq(@slack_msg));
     print("{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"Path check status for $title\",\"text\":\"$msg\"}]}");
-    system("export https_proxy=$proxy; /usr/local/bin/wget_112 --no-check-certificate --post-data='{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"Path check status for $title\",\"text\":\"$msg\"}]}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/'");
+    #system("export https_proxy=$proxy; /usr/local/bin/wget_112 --no-check-certificate --post-data='{\"attachments\":[{\"color\":\"#FF0000\",\"title\":\"Path check status for $title\",\"text\":\"$msg\"}]}' --header='Content-Type:application/json' 'https://hooks.slack.com/services/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'");
 }
 
 for my $i (@a_vioses)
@@ -222,18 +248,18 @@ for my $i (@a_vioses)
     if(defined($details))
     {
         my $object = PathCheck->new($v, $loc, "true");
-        push @threads, async { $object->check_paths() }
+        push @threads, threads::async { $object->check_paths() }
     }
     else
     {
         my $object = PathCheck->new($v, $loc, "false");
-        push @threads, async { $object->check_paths() }
+        push @threads, threads::async { $object->check_paths() }
     }
 }
 
 foreach(@threads)
 {
-    $_->join();
+    $_->threads::join();
 }
 unlink($idfile);
 if(defined($details))
