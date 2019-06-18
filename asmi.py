@@ -25,6 +25,8 @@ DBNAME = "cloud"
 DBPORT = 3306
 HMCPASSWD = "start1234"
 HMCUSER = "hscroot"
+ASMUSER = "admin"
+ASMPASSWD = "admin123"
 
 mydb = mysql.connector.connect(
     host=DBHOST,
@@ -38,11 +40,11 @@ mycursor = mydb.cursor()
 
 
 def get_asmip(hmc):
-    ssh.connect(hostname=hmc, username='hscroot', password='start1234', timeout=120)
+    ssh.connect(hostname=hmc, username=HMCUSER, password=HMCPASSWD, timeout=120)
     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command('lssyscfg -r sys -F name,ipaddr')
     output = ssh_stdout.readlines()
     for i in output:
-        if len(i) > 0 and "No results were found." not in i:
+        if len(i) > 0 and not str(i).__contains__("No results were found."):
             mslist.append(str(i).strip('\n'))
     print(mslist)
 
@@ -53,8 +55,8 @@ def get_events(hmc, asmip, formid, msname):
     csv = []
     csv2 = []
     login_values = {
-        'user': 'admin',
-        'password': 'admin123',
+        'user': ASMUSER,
+        'password': ASMPASSWD,
         'CSRF_TOKEN': '0',
         'asmip': asmip,
         'login': 'Log in'
@@ -95,8 +97,7 @@ def get_events(hmc, asmip, formid, msname):
         session.verify = False
         r = session.post(login_url, data=login_values, verify=False, headers=login_headers)
         print(r.cookies.get_dict())
-        print(
-            "######################################################################################################")
+        print("#" * 100)
         x = session.get(events_url, verify=False)
 
         if x.status_code == 200:
@@ -110,23 +111,21 @@ def get_events(hmc, asmip, formid, msname):
             if num in result:
                 print(hmc + ';' + msname + ';' + ';'.join(events[num:num + 6]).rstrip(';'))
                 csv.append('DEFAULT;' + hmc + ';' + msname + ';' + ';'.join(events[num:num + 6]).rstrip(';'))
-        print(
-            "#####################################################################################################")
-        # print("Getting deconfig records for " + str(msname))
-        # d = session.get(deconfig_url, verify=False)
-        # if d.status_code == 200:
-        #     soup = BeautifulSoup(d.text, 'html.parser')
-        #     elem = soup.find("table")
-        #     for i in elem.findAll("td"):
-        #         if i:
-        #             deconfig_records.append(str(i.text).strip())
-        # result = range(1, len(deconfig_records), 5)
-        # for num, lines in enumerate(deconfig_records):
-        #     if num in result:
-        #         print(hmc + ';' + msname + ';' + ';'.join(deconfig_records[num:num + 4]).rstrip(';'))
-        #         csv2.append('DEFAULT;' + hmc + ';' + msname + ';' + ';'.join(deconfig_records[num:num + 4]).rstrip(';'))
-        # print(
-        #     "#####################################################################################################")
+        print("#" * 100)
+        print("Getting deconfig records for " + str(msname))
+        d = session.get(deconfig_url, verify=False)
+        if d.status_code == 200:
+            soup = BeautifulSoup(d.text, 'html.parser')
+            elem = soup.find("table")
+            for i in elem.findAll("td"):
+                if i:
+                    deconfig_records.append(str(i.text).strip())
+        result = range(1, len(deconfig_records), 5)
+        for num, lines in enumerate(deconfig_records):
+            if num in result:
+                print(hmc + ';' + msname + ';' + ';'.join(deconfig_records[num:num + 4]).rstrip(';'))
+                csv2.append('DEFAULT;' + hmc + ';' + msname + ';' + ';'.join(deconfig_records[num:num + 4]).rstrip(';'))
+        print("#" * 100)
         logout_headers = {
             'Host': hmc,
             'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0',
@@ -150,11 +149,11 @@ def get_events(hmc, asmip, formid, msname):
                 for i in set(csv):
                     f.writelines(str(i) + ';' + mysql_date + "\n")
             insert_events(msname)
-        # if len(csv2) > 0:
-        #     with open("/tmp/asmi_deconfig_" + str(msname) + ".csv", mode='wt', encoding='latin-1') as f:
-        #         for i in set(csv2):
-        #             f.writelines(str(i) + ';' + mysql_date + "\n")
-        #     insert_deconfig(msname)
+        if len(csv2) > 0:
+            with open("/tmp/asmi_deconfig_" + str(msname) + ".csv", mode='wt', encoding='latin-1') as f:
+                for i in set(csv2):
+                    f.writelines(str(i) + ';' + mysql_date + "\n")
+            insert_deconfig(msname)
     except Exception as e:
         print("Exception occurred: " + str(e))
         pass

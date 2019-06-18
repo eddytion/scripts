@@ -13,8 +13,11 @@ DBPASS = "mariadbpwd"
 DBHOST = "localhost"
 DBNAME = "cloud"
 DBPORT = 3306
+# HMCPASSWD = "Cloud99Prod29$!"
+# HMCUSER = "pe"
 HMCPASSWD = "start1234"
 HMCUSER = "hscroot"
+
 
 current_date = datetime.date.today()
 ssh = paramiko.SSHClient()

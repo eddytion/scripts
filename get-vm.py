@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
 import atexit
@@ -8,6 +8,24 @@ from pyVim import connect
 from pyVmomi import vim
 import cli
 import pchelper
+import mysql.connector
+
+DBUSER = "root"
+DBPASS = "mariadbpwd"
+DBHOST = "localhost"
+DBNAME = "cloud"
+DBPORT = 3306
+
+mydb = mysql.connector.connect(
+    host=DBHOST,
+    user=DBUSER,
+    passwd=DBPASS,
+    database=DBNAME,
+    port=DBPORT,
+    connect_timeout=180
+)
+
+mycursor = mydb.cursor()
 
 START = clock()
 vm_details = []
@@ -64,7 +82,14 @@ for vm in vm_data:
     except:
         pass
 
-with open('/tmp/vm_details.csv', 'a') as f:
+with open('/tmp/vm_details.csv', 'w') as f:
     for i in vm_details:
         if i:
             f.write('DEFAULT,' + i + "\n")
+
+try:
+    query = "LOAD DATA LOCAL INFILE '/tmp/vm_details.csv' IGNORE INTO TABLE cloud.vmware FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n'"
+    mycursor.execute(query)
+    mydb.commit()
+except Exception as e:
+    print("An error has occurred: " + str(e))

@@ -29,7 +29,7 @@ pem = public_key.public_bytes(
 with open('/tmp/public_key.pem', 'wb') as f:
     f.write(pem)
 
-with open("/tmp/private_key.pem", "rb") as key_file:
+with open("/tmp/privatekey", "rb") as key_file:
     private_key = serialization.load_pem_private_key(
         key_file.read(),
         password=None,
@@ -56,15 +56,15 @@ with open("/tmp/encrypted.letter", "wb") as letter:
     letter.write(base64.b64encode(encrypted))
 
 
-with open("/tmp/encrypted.letter", "rt") as x:
+with open("/tmp/ico", "rt") as x:
     message2 = x.read()
 message2 = base64.b64decode(message2)
 
 orig = private_key.decrypt(
     message2,
     padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
+        mgf=padding.MGF1(algorithm=hashes.SHA1()),
+        algorithm=hashes.SHA1(),
         label=None
     )
 )

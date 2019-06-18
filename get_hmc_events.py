@@ -21,7 +21,7 @@ ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 threads = []
 
 sys.tracebacklimit = 0
-if len(sys.argv) < 1:
+if len(sys.argv) < 2:
     logging.error("Not enough arguments")
     sys.exit(1)
 

@@ -9,9 +9,9 @@ import time
 import base64
 import requests
 
-UPLOAD_URL = "https://localhost/upload_hw_events.php"
+UPLOAD_URL = "https://deehpda013ccpra/upload_hw_events.php"
 HMCUSER = "hscroot"
-HMCPASSWD = "abc1234"
+HMCPASSWD = "start1234"
 
 current_date = datetime.date.today()
 mysql_date = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -74,12 +74,12 @@ class HmcEvents(object):
             pass
 
 
-pool = multiprocessing.Pool(processes=6)
-for i in sys.argv[1:]:
-    updater = HmcEvents(i)
-    pool.apply_async(updater.get_hw_events, args=(i,))
-pool.close()
-pool.join()
+# pool = multiprocessing.Pool(processes=6)
+# for i in sys.argv[1:]:
+#     updater = HmcEvents(i)
+#     pool.apply_async(updater.get_hw_events, args=(i,))
+# pool.close()
+# pool.join()
 
 for i in sys.argv[1:]:
     updater = HmcEvents(i)
