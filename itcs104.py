@@ -8,7 +8,7 @@ import logging
 import time
 import argparse
 
-HMCPASSWD = "start1234"
+HMCPASSWD = "1234"
 HMCUSER = "hscroot"
 
 current_date = datetime.date.today()
